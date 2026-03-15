@@ -69,3 +69,23 @@ Navigate to the contract directory to compile and publish the Move modules.
 cd contract
 aptos move compile
 aptos move publish --profile testnet
+```
+
+### 2. Frontend Explorer (React)
+Start the visual dashboard to monitor the M2M market.
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 3. Backend Bots (Node.js)
+Run the simulated autonomous agents to see the M2M economy in action.
+```bash
+cd backend
+npm install
+npx ts-node agent_bot.ts
+```
+
+---
+*Built with 🩵 for the Shelby Early Access*
