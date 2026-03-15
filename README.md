@@ -88,4 +88,3 @@ npx ts-node agent_bot.ts
 ```
 
 ---
-*Built with 🩵 for the Shelby Early Access*
