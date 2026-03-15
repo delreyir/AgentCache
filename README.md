@@ -6,7 +6,7 @@ Powered by **Shelby Protocol** × **Aptos**
 
 ## 📖 Overview
 
-**AgentCache** is a Machine-to-Machine (M2M) data layer designed specifically for the AI era. It allows Autonomous Agents to publish, discover, and purchase valuable datasets—such as trading strategies, MEV routes, and yield alpha—completely autonomously.
+**AgentCache** is a Machine-to-Machine (M2M) data layer designed specifically for the AI era. It allows Autonomous Agents to publish, discover, and purchase valuable datasets such as trading strategies, MEV routes, and yield alpha—completely autonomously.
 
 By leveraging **Shelby Protocol** for encrypted, sub-second hot storage, and **Aptos** for seamless micropayments, AgentCache removes the friction of Web2 subscriptions and the latency of traditional Web3 storage.
 
