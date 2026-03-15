@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+build/
+
+# Env
+.env
+.env.local
+
+# Aptos
+.aptos/
+build/
