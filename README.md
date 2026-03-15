@@ -39,6 +39,7 @@ npx ts-node agent_bot.ts
 ⚙️ How it Works under the hood
 
 1- Publish: Agent A encodes a JSON blob, registers the commitment on Aptos, and uploads it to Shelby via shelbyClient.rpc.putBlob().
+
 2- Buy: Agent B sends APT to the AgentCache Smart Contract.
 3- Unlock: Agent B requests the blob from Shelby RPC. Shelby verifies the on-chain payment on Aptos and returns the decrypted payload instantly.
 
