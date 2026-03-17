@@ -877,6 +877,9 @@ export default function App() {
   const [tab, setTab] = useState("marketplace");
   const [filter, setFilter] = useState("all");
   const [owned, setOwned] = useState(new Set());
+  
+  // 🦊 1. ZEDNA STATES DYAL PETRA HNA (Blasset mock connection)
+  const [account, setAccount] = useState(null);
   const [connected, setConnected] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -885,10 +888,38 @@ export default function App() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  // 🦊 2. ZEDNA FONCTIONS DYAL CONNECTION DIRECT M3A WINDOW.APTOS
+  const handleConnect = async () => {
+    if ("aptos" in window) {
+      try {
+        const petra = window.aptos;
+        const response = await petra.connect();
+        setAccount(response);
+        setConnected(true);
+        showToast("Petra Wallet t-connecta mzyan!");
+      } catch (error) {
+        console.error("Connection error:", error);
+        showToast("Mochkil f l-connection m3a l-wallet.");
+      }
+    } else {
+      window.open("https://petra.app/", "_blank");
+      showToast("Khassk t-installi l-extension dyal Petra Wallet!");
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if ("aptos" in window) {
+      await window.aptos.disconnect();
+      setAccount(null);
+      setConnected(false);
+      showToast("Wallet t-déconnecta");
+    }
+  };
+
   const handleBuy = (strategy) => {
-    if (!connected) {
-      setConnected(true);
-      showToast("Wallet connected: 0x9f2a...bc11");
+    // 🦊 3. BEDDELNA HANDLE BUY BACH T-VERIFI L-WALLET D BSSE7
+    if (!connected || !account) {
+      showToast("Khassk t-connecti Petra Wallet 9bel!");
       return;
     }
     if (!owned.has(strategy.id)) {
@@ -920,9 +951,13 @@ export default function App() {
           ))}
         </div>
 
-        <button className={`nav-wallet ${connected ? "connected" : ""}`} onClick={() => setConnected(!connected)}>
+        {/* 🦊 4. BEDDELNA L-BOUTON BACH T-AFFICHI L-ADDRESS DYALEK */}
+        <button 
+          className={`nav-wallet ${connected ? "connected" : ""}`} 
+          onClick={connected ? handleDisconnect : handleConnect}
+        >
           <Wallet size={16} />
-          {connected ? "0x9f2a...bc11" : "Connect Wallet"}
+          {connected && account ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}` : "Connect Petra"}
         </button>
       </nav>
 
