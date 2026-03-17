@@ -1,0 +1,16 @@
+{
+  "name": "agentcache-backend",
+  "version": "1.0.0",
+  "description": "Simulated M2M autonomous agents for AgentCache",
+  "main": "agent_bot.ts",
+  "scripts": {
+    "start": "ts-node agent_bot.ts"
+  },
+  "dependencies": {
+    "@aptos-labs/ts-sdk": "^1.9.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
