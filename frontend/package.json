@@ -5,18 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm install && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aptos-labs/wallet-adapter-react": "^8.3.1",
-    "aptos": "^1.22.1",
+    "@aptos-labs/wallet-adapter-react": "^3.0.0",
+    "petra-plugin-wallet-adapter": "^3.0.0",
+    "aptos": "^1.21.0",
     "lucide-react": "^0.263.1",
-    "petra-plugin-wallet-adapter": "^0.4.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
+    "react-dom": "^18.2.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
