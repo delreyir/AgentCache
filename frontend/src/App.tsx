@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
 
-// 🦊 =========================================================
-// ⚠️ M-H-I-M B-Z-A-F (DAROURI DIRHA F VS CODE) ⚠️
-// 1. 7iyd slashes (//) mn s-ster li ta7t bach t-importi l-adapter rassmi f VS Code:
+// ⚠️ M-H-I-M B-Z-A-F (F VS CODE) ⚠️
+// Hna f Canvas ki-tla3 error 7it ma-3ndnach l-package dyal Aptos.
+// F VS Code dyalek, msse7 had s-ster dyal "const useWallet..." w 7iyd slashes (//) mn l-import li te7to:
+const useWallet = () => ({ account: null, connected: false, connect: () => {}, disconnect: () => {}, wallets: [] });
 // import { useWallet } from "@aptos-labs/wallet-adapter-react";
-
-// 2. Msse7 had l-mock function li ta7t (hiya ghir bach l-Canvas hna ma-y-3tikch Error):
-const useWallet = (): any => ({ account: null, connected: false, connect: (n:any) => {}, disconnect: () => {}, wallets: [] });
-// =========================================================
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
