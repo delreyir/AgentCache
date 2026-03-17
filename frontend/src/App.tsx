@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
 
+// 🦊 =========================================================
+// ⚠️ M-H-I-M B-Z-A-F (DAROURI DIRHA F VS CODE) ⚠️
+// 1. 7iyd slashes (//) mn s-ster li ta7t bach t-importi l-adapter rassmi f VS Code:
+// import { useWallet } from "@aptos-labs/wallet-adapter-react";
+
+// 2. Msse7 had l-mock function li ta7t (hiya ghir bach l-Canvas hna ma-y-3tikch Error):
+const useWallet = (): any => ({ account: null, connected: false, connect: (n:any) => {}, disconnect: () => {}, wallets: [] });
+// =========================================================
+
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
 
@@ -659,8 +668,8 @@ const AGENT_B_LOG = [
 
 function AgentSimulator() {
   const [running, setRunning] = useState(false);
-  const [aLines, setALines] = useState([]);
-  const [bLines, setBLines] = useState([]);
+  const [aLines, setALines] = useState<any[]>([]);
+  const [bLines, setBLines] = useState<any[]>([]);
 
   const run = () => {
     if (running) return;
@@ -752,8 +761,8 @@ function TerminalDemo() {
   )
 }
 
-function StrategyCard({ strategy, onBuy, owned }) {
-  const tagMap = { arb: "tag-arb", defi: "tag-defi", yield: "tag-yield", risk: "tag-risk" };
+function StrategyCard({ strategy, onBuy, owned }: any) {
+  const tagMap: Record<string, string> = { arb: "tag-arb", defi: "tag-defi", yield: "tag-yield", risk: "tag-risk" };
   return (
     <div className="card" onClick={() => onBuy(strategy)}>
       <div className="card-header">
@@ -765,7 +774,7 @@ function StrategyCard({ strategy, onBuy, owned }) {
       </div>
       <div className="card-body">{strategy.desc}</div>
       <div className="card-tags">
-        {strategy.tags.map(t => <span key={t} className={`tag ${tagMap[t]}`}>{t}</span>)}
+        {strategy.tags.map((t: string) => <span key={t} className={`tag ${tagMap[t]}`}>{t}</span>)}
       </div>
 
       <div className="card-metrics">
@@ -873,14 +882,16 @@ function PublishTab() {
   );
 }
 
+// ==========================================
+// 🦊 L-APP R-RA2ISIYA M3A L-ADAPTER RASSMI
+// ==========================================
 export default function App() {
   const [tab, setTab] = useState("marketplace");
   const [filter, setFilter] = useState("all");
   const [owned, setOwned] = useState(new Set());
   
-  // 🦊 States dyal Petra Hna
-  const [account, setAccount] = useState<any>(null);
-  const [connected, setConnected] = useState(false);
+  // 🦊 KHDEMNA B L-HOOK RASSMI DYAL APTOS WALLET
+  const { account, connected, connect, disconnect, wallets } = useWallet();
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -888,22 +899,16 @@ export default function App() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // 🦊 Fonctions dyal connection m3a window.petra w window.aptos
   const handleConnect = async () => {
-    // Petra f les versions jdad kat-injecti window.petra w window.aptos b-jouj
-    const petraWallet = (window as any).petra || (window as any).aptos;
-
-    if (petraWallet) {
+    // N-9ellbo 3la Petra f la liste dyal les wallets
+    const petra = wallets?.find((w: any) => w.name === 'Petra' || w.name === 'PetraWallet');
+    
+    if (petra) {
       try {
-        const response = await petraWallet.connect();
-        setAccount(response);
-        setConnected(true);
+        await connect(petra.name);
         showToast("Petra Wallet t-connecta mzyan!");
-      } catch (error: any) {
-        console.error("Connection error:", error);
-        // Hna n-affichiw l-error b dbt bach n3erfo chnu w9e3
-        const errorMsg = error?.message || "Mochkil f l-connection";
-        showToast(`Error: ${errorMsg}`);
+      } catch (e: any) {
+        showToast("Mochkil f l-connection wla sditiha!");
       }
     } else {
       window.open("https://petra.app/", "_blank");
@@ -912,16 +917,11 @@ export default function App() {
   };
 
   const handleDisconnect = async () => {
-    const petraWallet = (window as any).petra || (window as any).aptos;
-    if (petraWallet) {
-      try {
-        await petraWallet.disconnect();
-        setAccount(null);
-        setConnected(false);
-        showToast("Wallet t-déconnecta");
-      } catch (error) {
-        console.error("Disconnect error:", error);
-      }
+    try {
+      await disconnect();
+      showToast("Wallet t-déconnecta");
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -959,13 +959,15 @@ export default function App() {
           ))}
         </div>
 
-        {/* L-Bouton d Wallet */}
+        {/* 🦊 L-Bouton d Wallet jdida */}
         <button 
           className={`nav-wallet ${connected ? "connected" : ""}`} 
           onClick={connected ? handleDisconnect : handleConnect}
         >
           <Wallet size={16} />
-          {connected && account ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}` : "Connect Petra"}
+          {connected && account?.address 
+            ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}` 
+            : "Connect Petra"}
         </button>
       </nav>
 

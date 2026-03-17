@@ -1,10 +1,16 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { AptosWalletAdapterProvider } from '@aptos-labs/wallet-adapter-react';
+import { PetraWallet } from 'petra-plugin-wallet-adapter';
 // @ts-ignore
-import App from './App.tsx'
+import App from './App.tsx';
+
+const wallets = [new PetraWallet()];
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+    <AptosWalletAdapterProvider plugins={wallets} autoConnect={true}>
+      <App />
+    </AptosWalletAdapterProvider>
+  </React.StrictMode>
+);
