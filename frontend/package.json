@@ -10,10 +10,8 @@
   },
   "dependencies": {
     "@aptos-labs/wallet-adapter-react": "^3.0.0",
-    "@martianwallet/aptos-wallet-adapter": "latest",
     "aptos": "^1.21.0",
     "lucide-react": "^0.263.1",
-    "petra-plugin-wallet-adapter": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@types/react": "^18.2.15",
