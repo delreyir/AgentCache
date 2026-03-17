@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
 
-// ⚠️ M-H-I-M B-Z-A-F (F VS CODE) ⚠️
-// Hna f Canvas ki-tla3 error 7it ma-3ndnach l-package dyal Aptos.
-// F VS Code dyalek, msse7 had s-ster dyal "const useWallet..." w 7iyd slashes (//) mn l-import li te7to:
-const useWallet = () => ({ account: null, connected: false, connect: () => {}, disconnect: () => {}, wallets: [] });
-// import { useWallet } from "@aptos-labs/wallet-adapter-react";
+// 🦊 L-ADAPTER R-RA2ISIYA (DIRECT WINDOW DETECTION)
+// Msse7na l-import dyal useWallet bach n-tfadaw l-redirect l-site dyal Petra
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
@@ -583,66 +580,12 @@ const styles = `
 `;
 
 const STRATEGIES = [
-  {
-    id: "strat_001",
-    name: "Delta Neutral Arb v2",
-    author: "0x7f3a...b91c",
-    desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.",
-    tags: ["arb", "defi"],
-    price: "0.05",
-    metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" },
-    roiUp: true
-  },
-  {
-    id: "strat_002",
-    name: "Yield Optimizer Alpha",
-    author: "0x2e9c...44fa",
-    desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.",
-    tags: ["yield", "defi"],
-    price: "0.03",
-    metrics: { roi: "+18.7%", calls: "847", risk: "MED" },
-    roiUp: true
-  },
-  {
-    id: "strat_003",
-    name: "Mempool Sniper Bot",
-    author: "0xb3f1...9e2d",
-    desc: "Monitors pending transactions for MEV opportunities. Targets sandwich-resistant protocols.",
-    tags: ["arb", "risk"],
-    price: "0.10",
-    metrics: { roi: "-2.1%", calls: "312", risk: "HIGH" },
-    roiUp: false
-  },
-  {
-    id: "strat_004",
-    name: "Cross-Chain Rebalancer",
-    author: "0x91ad...c77b",
-    desc: "Bridges assets between Aptos, Sui, and EVM chains to capture spread. Uses LayerZero.",
-    tags: ["defi", "yield"],
-    price: "0.04",
-    metrics: { roi: "+22.5%", calls: "593", risk: "MED" },
-    roiUp: true
-  },
-  {
-    id: "strat_005",
-    name: "Volatility Harvester",
-    author: "0x5c2e...f001",
-    desc: "Sells volatility via options protocols during high-IV regimes. Hedges gamma dynamically.",
-    tags: ["defi", "risk"],
-    price: "0.10",
-    metrics: { roi: "+41.8%", calls: "2.1k", risk: "HIGH" },
-    roiUp: true
-  },
-  {
-    id: "strat_006",
-    name: "LST Basis Trader",
-    author: "0x1a7b...e33c",
-    desc: "Captures basis between liquid staking tokens and their underlying assets. Automated settlement.",
-    tags: ["yield", "arb"],
-    price: "0.02",
-    metrics: { roi: "+9.3%", calls: "421", risk: "LOW" },
-    roiUp: true
-  }
+  { id: "strat_001", name: "Delta Neutral Arb v2", author: "0x7f3a...b91c", desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.", tags: ["arb", "defi"], price: "0.05", metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" }, roiUp: true },
+  { id: "strat_002", name: "Yield Optimizer Alpha", author: "0x2e9c...44fa", desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.", tags: ["yield", "defi"], price: "0.03", metrics: { roi: "+18.7%", calls: "847", risk: "MED" }, roiUp: true },
+  { id: "strat_003", name: "Mempool Sniper Bot", author: "0xb3f1...9e2d", desc: "Monitors pending transactions for MEV opportunities. Targets sandwich-resistant protocols.", tags: ["arb", "risk"], price: "0.10", metrics: { roi: "-2.1%", calls: "312", risk: "HIGH" }, roiUp: false },
+  { id: "strat_004", name: "Cross-Chain Rebalancer", author: "0x91ad...c77b", desc: "Bridges assets between Aptos, Sui, and EVM chains to capture spread. Uses LayerZero.", tags: ["defi", "yield"], price: "0.04", metrics: { roi: "+22.5%", calls: "593", risk: "MED" }, roiUp: true },
+  { id: "strat_005", name: "Volatility Harvester", author: "0x5c2e...f001", desc: "Sells volatility via options protocols during high-IV regimes. Hedges gamma dynamically.", tags: ["defi", "risk"], price: "0.10", metrics: { roi: "+41.8%", calls: "2.1k", risk: "HIGH" }, roiUp: true },
+  { id: "strat_006", name: "LST Basis Trader", author: "0x1a7b...e33c", desc: "Captures basis between liquid staking tokens and their underlying assets. Automated settlement.", tags: ["yield", "arb"], price: "0.02", metrics: { roi: "+9.3%", calls: "421", risk: "LOW" }, roiUp: true }
 ];
 
 const AGENT_A_LOG = [
@@ -880,15 +823,16 @@ function PublishTab() {
 }
 
 // ==========================================
-// 🦊 L-APP R-RA2ISIYA M3A L-ADAPTER RASSMI
+// 🦊 L-APP R-RA2ISIYA (DIRECT WINDOW DETECTION)
 // ==========================================
 export default function App() {
   const [tab, setTab] = useState("marketplace");
   const [filter, setFilter] = useState("all");
   const [owned, setOwned] = useState(new Set());
   
-  // 🦊 KHDEMNA B L-HOOK RASSMI DYAL APTOS WALLET
-  const { account, connected, connect, disconnect, wallets } = useWallet();
+  // 🦊 States dyal Wallet (Direct window.aptos)
+  const [account, setAccount] = useState<any>(null);
+  const [connected, setConnected] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -896,18 +840,33 @@ export default function App() {
     setTimeout(() => setToast(null), 4000);
   };
 
+  // 🦊 Logic dyal Connect direct m3a l-navigateur
   const handleConnect = async () => {
-    // N-9ellbo 3la Petra f la liste dyal les wallets
-    const petra = wallets?.find((w: any) => w.name === 'Petra' || w.name === 'PetraWallet');
-    
-    if (petra) {
+    // 1. N-jerbo Martian Wallet hiya lowla ila kant (Optonnel)
+    if ("martian" in window) {
       try {
-        await connect(petra.name);
+        const response = await (window as any).martian.connect();
+        setAccount({ address: response.address });
+        setConnected(true);
+        showToast("Martian Wallet Connected!");
+        return;
+      } catch (e) { console.error(e); }
+    } 
+    
+    // 2. L-Logic r-ra2issiya: Connecti Petra
+    if ("aptos" in window) {
+      try {
+        const petra = (window as any).aptos;
+        const response = await petra.connect();
+        setAccount(response);
+        setConnected(true);
         showToast("Petra Wallet t-connecta mzyan!");
-      } catch (e: any) {
-        showToast("Mochkil f l-connection wla sditiha!");
+      } catch (error) {
+        console.error("Connection error:", error);
+        showToast("Connection failed. Try unlocking Petra!");
       }
     } else {
+      // 3. Ila makayna ta whda
       window.open("https://petra.app/", "_blank");
       showToast("Khassk t-installi l-extension dyal Petra Wallet!");
     }
@@ -915,7 +874,13 @@ export default function App() {
 
   const handleDisconnect = async () => {
     try {
-      await disconnect();
+      if ("martian" in window) {
+        await (window as any).martian.disconnect();
+      } else if ("aptos" in window) {
+        await (window as any).aptos.disconnect();
+      }
+      setAccount(null);
+      setConnected(false);
       showToast("Wallet t-déconnecta");
     } catch (e) {
       console.error(e);
@@ -956,7 +921,6 @@ export default function App() {
           ))}
         </div>
 
-        {/* 🦊 L-Bouton d Wallet jdida */}
         <button 
           className={`nav-wallet ${connected ? "connected" : ""}`} 
           onClick={connected ? handleDisconnect : handleConnect}
