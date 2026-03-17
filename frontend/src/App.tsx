@@ -878,28 +878,32 @@ export default function App() {
   const [filter, setFilter] = useState("all");
   const [owned, setOwned] = useState(new Set());
   
-  // 🦊 1. ZEDNA STATES DYAL PETRA HNA (Blasset mock connection)
-  const [account, setAccount] = useState(null);
+  // 🦊 States dyal Petra Hna
+  const [account, setAccount] = useState<any>(null);
   const [connected, setConnected] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState<string | null>(null);
 
-  const showToast = (msg) => {
+  const showToast = (msg: string) => {
     setToast(msg);
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 4000);
   };
 
-  // 🦊 2. ZEDNA FONCTIONS DYAL CONNECTION DIRECT M3A WINDOW.APTOS
+  // 🦊 Fonctions dyal connection m3a window.petra w window.aptos
   const handleConnect = async () => {
-    if ("aptos" in window) {
+    // Petra f les versions jdad kat-injecti window.petra w window.aptos b-jouj
+    const petraWallet = (window as any).petra || (window as any).aptos;
+
+    if (petraWallet) {
       try {
-        const petra = window.aptos;
-        const response = await petra.connect();
+        const response = await petraWallet.connect();
         setAccount(response);
         setConnected(true);
         showToast("Petra Wallet t-connecta mzyan!");
-      } catch (error) {
+      } catch (error: any) {
         console.error("Connection error:", error);
-        showToast("Mochkil f l-connection m3a l-wallet.");
+        // Hna n-affichiw l-error b dbt bach n3erfo chnu w9e3
+        const errorMsg = error?.message || "Mochkil f l-connection";
+        showToast(`Error: ${errorMsg}`);
       }
     } else {
       window.open("https://petra.app/", "_blank");
@@ -908,16 +912,20 @@ export default function App() {
   };
 
   const handleDisconnect = async () => {
-    if ("aptos" in window) {
-      await window.aptos.disconnect();
-      setAccount(null);
-      setConnected(false);
-      showToast("Wallet t-déconnecta");
+    const petraWallet = (window as any).petra || (window as any).aptos;
+    if (petraWallet) {
+      try {
+        await petraWallet.disconnect();
+        setAccount(null);
+        setConnected(false);
+        showToast("Wallet t-déconnecta");
+      } catch (error) {
+        console.error("Disconnect error:", error);
+      }
     }
   };
 
-  const handleBuy = (strategy) => {
-    // 🦊 3. BEDDELNA HANDLE BUY BACH T-VERIFI L-WALLET D BSSE7
+  const handleBuy = (strategy: any) => {
     if (!connected || !account) {
       showToast("Khassk t-connecti Petra Wallet 9bel!");
       return;
@@ -951,7 +959,7 @@ export default function App() {
           ))}
         </div>
 
-        {/* 🦊 4. BEDDELNA L-BOUTON BACH T-AFFICHI L-ADDRESS DYALEK */}
+        {/* L-Bouton d Wallet */}
         <button 
           className={`nav-wallet ${connected ? "connected" : ""}`} 
           onClick={connected ? handleDisconnect : handleConnect}
