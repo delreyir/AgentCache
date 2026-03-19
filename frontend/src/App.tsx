@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
 
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
+// ⚠️ IMPORTANT: In your VS Code, delete this mock and uncomment the real import below.
+// This is just to prevent build errors in the Canvas environment.
+const useWallet = () => ({ 
+  account: null as any, 
+  connected: false, 
+  connect: async (name: string) => {}, 
+  disconnect: async () => {}, 
+  wallets: [{name: "Petra"}] as any[] 
+});
+// import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
@@ -9,18 +18,18 @@ const styles = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #080b0f;
-    --bg2: #0d1117;
-    --bg3: #131920;
-    --border: #1e2d3d;
-    --border2: #2a3f52;
-    --accent: #00e5ff;
+    --bg: #1A1615;
+    --bg2: #221D1C;
+    --bg3: #2A2422;
+    --border: #3A3230;
+    --border2: #4A403E;
+    --accent: #FF66CC;
     --accent2: #7c3aed;
     --accent3: #10b981;
     --warn: #f59e0b;
-    --text: #e2e8f0;
-    --text2: #8892a4;
-    --text3: #4a5568;
+    --text: #FDF9F7;
+    --text2: #AFA5A2;
+    --text3: #756A67;
     --red: #ef4444;
     --font-mono: 'Space Mono', monospace;
     --font-display: 'Syne', sans-serif;
@@ -38,8 +47,8 @@ const styles = `
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(255, 102, 204, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 102, 204, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
     z-index: 0;
@@ -54,7 +63,7 @@ const styles = `
     justify-content: space-between;
     padding: 0 32px;
     height: 70px;
-    background: rgba(8,11,15,0.8);
+    background: rgba(26, 22, 21, 0.8);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
@@ -133,7 +142,7 @@ const styles = `
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    background: rgba(0, 229, 255, 0.05);
+    background: rgba(255, 102, 204, 0.05);
     border: 1px solid var(--accent);
     border-radius: 4px;
     font-size: 11px;
@@ -152,7 +161,7 @@ const styles = `
     margin-bottom: 32px;
   }
 
-  .hero-title em { color: var(--accent); font-style: normal; text-shadow: 0 0 30px rgba(0, 229, 255, 0.3); }
+  .hero-title em { color: var(--accent); font-style: normal; text-shadow: 0 0 30px rgba(255, 102, 204, 0.3); }
 
   .hero-desc { font-size: 14px; color: var(--text2); line-height: 1.8; max-width: 500px; margin-bottom: 40px; }
 
@@ -175,7 +184,7 @@ const styles = `
   .filter-bar { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
   .filter-btn { padding: 8px 16px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text3); cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
   .filter-btn:hover { border-color: var(--border2); color: var(--text2); }
-  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255, 102, 204, 0.05); }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
   .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden; }
@@ -187,7 +196,7 @@ const styles = `
   .card-body { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; min-height: 40px; }
   .card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
   .tag { font-size: 10px; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; font-weight: 700; }
-  .tag-arb { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.2); }
+  .tag-arb { background: rgba(255, 102, 204, 0.1); color: var(--accent); border: 1px solid rgba(255, 102, 204, 0.2); }
   .tag-defi { background: rgba(124,58,237,0.15); color: var(--accent2); border: 1px solid rgba(124,58,237,0.3); }
   .tag-yield { background: rgba(16,185,129,0.1); color: var(--accent3); border: 1px solid rgba(16,185,129,0.2); }
   .tag-risk { background: rgba(245,158,11,0.1); color: var(--warn); border: 1px solid rgba(245,158,11,0.2); }
@@ -217,7 +226,7 @@ const styles = `
   .sim-agent-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .sim-agent-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
   .icon-publisher { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); }
-  .icon-consumer { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2); }
+  .icon-consumer { background: rgba(255, 102, 204, 0.1); border: 1px solid rgba(255, 102, 204, 0.2); }
   .sim-agent-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; }
   .sim-agent-role { font-size: 11px; color: var(--text3); }
   .sim-log { font-size: 11px; line-height: 1.8; color: var(--text3); min-height: 120px; }
