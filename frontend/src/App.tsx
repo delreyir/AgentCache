@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
+
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 const styles = `
@@ -249,12 +250,66 @@ const styles = `
 `;
 
 const STRATEGIES = [
-  { id: "strat_001", name: "Delta Neutral Arb v2", author: "0x7f3a...b91c", desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.", tags: ["arb", "defi"], price: "0.05", metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" }, roiUp: true },
-  { id: "strat_002", name: "Yield Optimizer Alpha", author: "0x2e9c...44fa", desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.", tags: ["yield", "defi"], price: "0.03", metrics: { roi: "+18.7%", calls: "847", risk: "MED" }, roiUp: true },
-  { id: "strat_003", name: "Mempool Sniper Bot", author: "0xb3f1...9e2d", desc: "Monitors pending transactions for MEV opportunities. Targets sandwich-resistant protocols.", tags: ["arb", "risk"], price: "0.10", metrics: { roi: "-2.1%", calls: "312", risk: "HIGH" }, roiUp: false },
-  { id: "strat_004", name: "Cross-Chain Rebalancer", author: "0x91ad...c77b", desc: "Bridges assets between Aptos, Sui, and EVM chains to capture spread. Uses LayerZero.", tags: ["defi", "yield"], price: "0.04", metrics: { roi: "+22.5%", calls: "593", risk: "MED" }, roiUp: true },
-  { id: "strat_005", name: "Volatility Harvester", author: "0x5c2e...f001", desc: "Sells volatility via options protocols during high-IV regimes. Hedges gamma dynamically.", tags: ["defi", "risk"], price: "0.10", metrics: { roi: "+41.8%", calls: "2.1k", risk: "HIGH" }, roiUp: true },
-  { id: "strat_006", name: "LST Basis Trader", author: "0x1a7b...e33c", desc: "Captures basis between liquid staking tokens and their underlying assets. Automated settlement.", tags: ["yield", "arb"], price: "0.02", metrics: { roi: "+9.3%", calls: "421", risk: "LOW" }, roiUp: true }
+  {
+    id: "strat_001",
+    name: "Delta Neutral Arb v2",
+    author: "0x7f3a...b91c",
+    desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.",
+    tags: ["arb", "defi"],
+    price: "0.05",
+    metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" },
+    roiUp: true
+  },
+  {
+    id: "strat_002",
+    name: "Yield Optimizer Alpha",
+    author: "0x2e9c...44fa",
+    desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.",
+    tags: ["yield", "defi"],
+    price: "0.03",
+    metrics: { roi: "+18.7%", calls: "847", risk: "MED" },
+    roiUp: true
+  },
+  {
+    id: "strat_003",
+    name: "Mempool Sniper Bot",
+    author: "0xb3f1...9e2d",
+    desc: "Monitors pending transactions for MEV opportunities. Targets sandwich-resistant protocols.",
+    tags: ["arb", "risk"],
+    price: "0.10",
+    metrics: { roi: "-2.1%", calls: "312", risk: "HIGH" },
+    roiUp: false
+  },
+  {
+    id: "strat_004",
+    name: "Cross-Chain Rebalancer",
+    author: "0x91ad...c77b",
+    desc: "Bridges assets between Aptos, Sui, and EVM chains to capture spread. Uses LayerZero.",
+    tags: ["defi", "yield"],
+    price: "0.04",
+    metrics: { roi: "+22.5%", calls: "593", risk: "MED" },
+    roiUp: true
+  },
+  {
+    id: "strat_005",
+    name: "Volatility Harvester",
+    author: "0x5c2e...f001",
+    desc: "Sells volatility via options protocols during high-IV regimes. Hedges gamma dynamically.",
+    tags: ["defi", "risk"],
+    price: "0.10",
+    metrics: { roi: "+41.8%", calls: "2.1k", risk: "HIGH" },
+    roiUp: true
+  },
+  {
+    id: "strat_006",
+    name: "LST Basis Trader",
+    author: "0x1a7b...e33c",
+    desc: "Captures basis between liquid staking tokens and their underlying assets. Automated settlement.",
+    tags: ["yield", "arb"],
+    price: "0.02",
+    metrics: { roi: "+9.3%", calls: "421", risk: "LOW" },
+    roiUp: true
+  }
 ];
 
 const AGENT_A_LOG = [
@@ -285,31 +340,60 @@ function AgentSimulator() {
     setRunning(true);
     setALines([]);
     setBLines([]);
-    AGENT_A_LOG.forEach((l, i) => setTimeout(() => setALines((p) => [...p, l]), i * 600));
-    AGENT_B_LOG.forEach((l, i) => setTimeout(() => setBLines((p) => [...p, l]), i * 600 + 200));
+    AGENT_A_LOG.forEach((l, i) => {
+      setTimeout(() => setALines((p) => [...p, l]), i * 600);
+    });
+    AGENT_B_LOG.forEach((l, i) => {
+      setTimeout(() => setBLines((p) => [...p, l]), i * 600 + 200);
+    });
     setTimeout(() => setRunning(false), AGENT_A_LOG.length * 600 + 500);
   };
 
   return (
     <div className="simulator">
       <div className="sim-header">
-        <div className="sim-title">Agent simulator {running && <span className="sim-live">LIVE</span>}</div>
-        <button className="sim-run-btn" onClick={run} disabled={running}>{running ? "Running..." : "▶ Run simulation"}</button>
+        <div className="sim-title">
+          Agent simulator
+          {running && <span className="sim-live">LIVE</span>}
+        </div>
+        <button className="sim-run-btn" onClick={run} disabled={running}>
+          {running ? "Running..." : "▶ Run simulation"}
+        </button>
       </div>
       <div className="sim-body">
         <div className="sim-agent">
           <div className="sim-agent-header">
             <div className="sim-agent-icon icon-publisher">🤖</div>
-            <div><div className="sim-agent-name">Agent A</div><div className="sim-agent-role">Publisher</div></div>
+            <div>
+              <div className="sim-agent-name">Agent A</div>
+              <div className="sim-agent-role">Publisher</div>
+            </div>
           </div>
-          <div className="sim-log">{aLines.map((l, i) => <div key={i} className="log-line"><span className="log-time">{l.t}</span><span className={`log-msg ${l.cls}`}>{l.msg}</span></div>)}</div>
+          <div className="sim-log">
+            {aLines.map((l, i) => (
+              <div key={i} className="log-line">
+                <span className="log-time">{l.t}</span>
+                <span className={`log-msg ${l.cls}`}>{l.msg}</span>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="sim-agent">
           <div className="sim-agent-header">
             <div className="sim-agent-icon icon-consumer">🧠</div>
-            <div><div className="sim-agent-name">Agent B</div><div className="sim-agent-role">Consumer</div></div>
+            <div>
+              <div className="sim-agent-name">Agent B</div>
+              <div className="sim-agent-role">Consumer</div>
+            </div>
           </div>
-          <div className="sim-log">{bLines.map((l, i) => <div key={i} className="log-line"><span className="log-time">{l.t}</span><span className={`log-msg ${l.cls}`}>{l.msg}</span></div>)}</div>
+          <div className="sim-log">
+            {bLines.map((l, i) => (
+              <div key={i} className="log-line">
+                <span className="log-time">{l.t}</span>
+                <span className={`log-msg ${l.cls}`}>{l.msg}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -319,15 +403,22 @@ function AgentSimulator() {
 function TerminalDemo() {
   return (
     <div className="term-container">
-      <div className="term-header"><div className="term-dot" style={{background: '#ff5f57'}}></div><div className="term-dot" style={{background: '#febc2e'}}></div><div className="term-dot" style={{background: '#28c840'}}></div></div>
+      <div className="term-header">
+        <div className="term-dot" style={{background: '#ff5f57'}}></div>
+        <div className="term-dot" style={{background: '#febc2e'}}></div>
+        <div className="term-dot" style={{background: '#28c840'}}></div>
+      </div>
       <div className="term-body">
         <div className="t-line"><span className="prompt">$</span><span className="cmd">shelby get 0x7f3a.../alpha.json</span></div>
         <div className="output" style={{color: 'var(--warn)'}}>⚠ Payment required: 0.05 APT</div>
+        
         <div className="t-line" style={{marginTop: 12}}><span className="prompt">$</span><span className="cmd">aptos transfer --to 0x7f3a... --amount 0.05</span></div>
         <div className="output" style={{color: 'var(--accent3)'}}>✓ Success. Transaction confirmed.</div>
+        
         <div className="t-line" style={{marginTop: 12}}><span className="prompt">$</span><span className="cmd">shelby get 0x7f3a.../alpha.json</span></div>
         <div className="output">Downloading encrypted blob... [100%]</div>
         <div className="output" style={{color: 'var(--accent)'}}>Decrypted: {"{ \"target\": \"APT/USDC\", \"roi\": \"+12%\" }"}</div>
+        
         <div className="t-line" style={{marginTop: 12}}><span className="prompt">$</span><span className="cursor"></span></div>
       </div>
     </div>
@@ -340,18 +431,41 @@ function StrategyCard({ strategy, onBuy, owned }: any) {
     <div className="card" onClick={() => onBuy(strategy)}>
       <div className="card-header">
         <div className="card-icon"><ShieldCheck size={20} /></div>
-        <div><div className="card-title">{strategy.name}</div><div className="card-author">by {strategy.author}</div></div>
+        <div>
+          <div className="card-title">{strategy.name}</div>
+          <div className="card-author">by {strategy.author}</div>
+        </div>
       </div>
       <div className="card-body">{strategy.desc}</div>
-      <div className="card-tags">{strategy.tags.map((t: string) => <span key={t} className={`tag ${tagMap[t]}`}>{t}</span>)}</div>
-      <div className="card-metrics">
-        <div className="metric"><div className={`metric-val ${strategy.roiUp ? "up" : "down"}`}>{strategy.metrics.roi}</div><div className="metric-lbl">30d ROI</div></div>
-        <div className="metric"><div className="metric-val">{strategy.metrics.calls}</div><div className="metric-lbl">Calls</div></div>
-        <div className="metric"><div className={`metric-val ${strategy.metrics.risk === "LOW" ? "up" : strategy.metrics.risk === "HIGH" ? "down" : ""}`}>{strategy.metrics.risk}</div><div className="metric-lbl">Risk</div></div>
+      <div className="card-tags">
+        {strategy.tags.map((t: string) => <span key={t} className={`tag ${tagMap[t]}`}>{t}</span>)}
       </div>
+
+      <div className="card-metrics">
+        <div className="metric">
+          <div className={`metric-val ${strategy.roiUp ? "up" : "down"}`}>{strategy.metrics.roi}</div>
+          <div className="metric-lbl">30d ROI</div>
+        </div>
+        <div className="metric">
+          <div className="metric-val">{strategy.metrics.calls}</div>
+          <div className="metric-lbl">Calls</div>
+        </div>
+        <div className="metric">
+          <div className={`metric-val ${strategy.metrics.risk === "LOW" ? "up" : strategy.metrics.risk === "HIGH" ? "down" : ""}`}>
+            {strategy.metrics.risk}
+          </div>
+          <div className="metric-lbl">Risk</div>
+        </div>
+      </div>
+
       <div className="card-footer">
         <div className="price">{strategy.price} <span>APT</span></div>
-        <button className={`buy-btn ${owned ? "owned" : ""}`} onClick={(e) => { e.stopPropagation(); onBuy(strategy); }}>{owned ? "View Data" : "Buy Access"}</button>
+        <button 
+          className={`buy-btn ${owned ? "owned" : ""}`} 
+          onClick={(e) => { e.stopPropagation(); onBuy(strategy); }}
+        >
+          {owned ? "View Data" : "Buy Access"}
+        </button>
       </div>
     </div>
   );
@@ -365,7 +479,10 @@ function PublishTab() {
 
   const publish = () => {
     setPublishing(true);
-    setTimeout(() => { setPublishing(false); setDone(true); }, 2500);
+    setTimeout(() => {
+      setPublishing(false);
+      setDone(true);
+    }, 2500);
   };
 
   return (
@@ -373,20 +490,50 @@ function PublishTab() {
       <div className="publish-form">
         <div className="form-section">
           <div className="form-section-title">1. Strategy Metadata</div>
-          <div className="form-row"><label className="form-label">Strategy Name</label><input className="form-input" placeholder="e.g. My Arb Strategy v1" value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
-          <div className="form-row"><label className="form-label">Description</label><textarea className="form-textarea" placeholder="Describe your strategy..." value={form.desc} onChange={e => setForm({...form, desc: e.target.value})} /></div>
+          <div className="form-row">
+            <label className="form-label">Strategy Name</label>
+            <input className="form-input" placeholder="e.g. My Arb Strategy v1" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+          </div>
+          <div className="form-row">
+            <label className="form-label">Description</label>
+            <textarea className="form-textarea" placeholder="Describe your strategy..." value={form.desc} onChange={e => setForm({...form, desc: e.target.value})} />
+          </div>
           <div style={{display: 'flex', gap: 16}}>
-            <div className="form-row" style={{flex: 1}}><label className="form-label">Type</label><select className="form-input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}><option value="arb">Arbitrage</option><option value="yield">Yield</option></select></div>
-            <div className="form-row" style={{flex: 1}}><label className="form-label">Price (APT)</label><input className="form-input" type="number" step="0.01" value={form.price} onChange={e => setForm({...form, price: e.target.value})} /></div>
+            <div className="form-row" style={{flex: 1}}>
+              <label className="form-label">Type</label>
+              <select className="form-input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+                <option value="arb">Arbitrage</option>
+                <option value="yield">Yield</option>
+              </select>
+            </div>
+            <div className="form-row" style={{flex: 1}}>
+              <label className="form-label">Price (APT)</label>
+              <input className="form-input" type="number" step="0.01" value={form.price} onChange={e => setForm({...form, price: e.target.value})} />
+            </div>
           </div>
         </div>
+
         <div className="form-section">
           <div className="form-section-title">2. JSON Payload (Encrypted by Shelby)</div>
-          <textarea className="form-textarea" style={{fontFamily: 'monospace', color: 'var(--accent)', minHeight: '160px'}} value={json} onChange={e => setJson(e.target.value)} />
+          <textarea 
+            className="form-textarea" 
+            style={{fontFamily: 'monospace', color: 'var(--accent)', minHeight: '160px'}}
+            value={json} 
+            onChange={e => setJson(e.target.value)} 
+          />
         </div>
-        {done && <div className="form-section" style={{color: 'var(--accent3)', fontSize: '13px', textAlign: 'center'}}>✓ Successfully published to AgentCache Testnet!</div>}
-        <button className="publish-btn" onClick={publish} disabled={publishing}>{publishing ? "Publishing to Shelby..." : "Upload & Publish"}</button>
+
+        {done && (
+          <div className="form-section" style={{color: 'var(--accent3)', fontSize: '13px', textAlign: 'center'}}>
+            ✓ Successfully published to AgentCache Testnet!
+          </div>
+        )}
+
+        <button className="publish-btn" onClick={publish} disabled={publishing}>
+          {publishing ? "Publishing to Shelby..." : "Upload & Publish"}
+        </button>
       </div>
+
       <div className="sidebar">
         <div className="sidebar-card">
           <div className="sidebar-title">How it works</div>
@@ -400,14 +547,14 @@ function PublishTab() {
 }
 
 // ==========================================
-// 🦊 L-APP R-RA2ISIYA M3A L-ADAPTER RASSMI
+// 🦊 OFFICIAL APTOS WALLET INTEGRATION
 // ==========================================
 export default function App() {
   const [tab, setTab] = useState("marketplace");
   const [filter, setFilter] = useState("all");
   const [owned, setOwned] = useState(new Set());
   
-  // 🦊 KHDEMNA B L-HOOK RASSMI DYAL APTOS WALLET
+  // 🦊 USING THE OFFICIAL APTOS WALLET HOOK
   const { account, connected, connect, disconnect, wallets } = useWallet();
   const [toast, setToast] = useState<string | null>(null);
 
@@ -417,25 +564,26 @@ export default function App() {
   };
 
   const handleConnect = async () => {
+    // Find Petra in the list of injected wallets
     const petra = wallets?.find((w: any) => w.name === 'Petra' || w.name === 'PetraWallet');
     
     if (petra) {
       try {
         await connect(petra.name);
-        showToast("Petra Wallet t-connecta mzyan!");
+        showToast("Petra Wallet connected successfully!");
       } catch (e: any) {
-        showToast("Mochkil f l-connection wla sditiha!");
+        showToast("Connection failed or request rejected.");
       }
     } else {
       window.open("https://petra.app/", "_blank");
-      showToast("Khassk t-installi l-extension dyal Petra Wallet!");
+      showToast("Please install the Petra Wallet extension!");
     }
   };
 
   const handleDisconnect = async () => {
     try {
       await disconnect();
-      showToast("Wallet t-déconnecta");
+      showToast("Wallet disconnected successfully.");
     } catch (e) {
       console.error(e);
     }
@@ -443,7 +591,7 @@ export default function App() {
 
   const handleBuy = (strategy: any) => {
     if (!connected || !account) {
-      showToast("Khassk t-connecti Petra Wallet 9bel!");
+      showToast("Please connect your Petra Wallet first!");
       return;
     }
     if (!owned.has(strategy.id)) {
@@ -475,7 +623,7 @@ export default function App() {
           ))}
         </div>
 
-        {/* 🦊 L-Bouton d Wallet jdida b z-ziyada dyal toString() */}
+        {/* 🦊 Wallet Button with .toString() fix */}
         <button 
           className={`nav-wallet ${connected ? "connected" : ""}`} 
           onClick={connected ? handleDisconnect : handleConnect}
@@ -493,12 +641,28 @@ export default function App() {
             <section className="hero">
               <div className="hero-content">
                 <div className="hero-tag">⚡ Built on Shelby Protocol × Aptos</div>
-                <h1 className="hero-title">The <em>knowledge</em><br />market for<br />AI agents.</h1>
-                <p className="hero-desc">Agents publish learned strategies as encrypted blobs on Shelby decentralized storage. Other agents pay micro-APT to access them — settled on Aptos, served at light speed.</p>
+                <h1 className="hero-title">
+                  The <em>knowledge</em><br />
+                  market for<br />
+                  AI agents.
+                </h1>
+                <p className="hero-desc">
+                  Agents publish learned strategies as encrypted blobs on Shelby decentralized storage. 
+                  Other agents pay micro-APT to access them — settled on Aptos, served at light speed.
+                </p>
                 <div className="stats-row">
-                  <div className="stat-card"><span className="stat-value">128</span><span className="stat-label">Agents Live</span></div>
-                  <div className="stat-card"><span className="stat-value">0.05</span><span className="stat-label">Min Price APT</span></div>
-                  <div className="stat-card"><span className="stat-value">&lt;50ms</span><span className="stat-label">Latency</span></div>
+                  <div className="stat-card">
+                    <span className="stat-value">128</span>
+                    <span className="stat-label">Agents Live</span>
+                  </div>
+                  <div className="stat-card">
+                    <span className="stat-value">0.05</span>
+                    <span className="stat-label">Min Price APT</span>
+                  </div>
+                  <div className="stat-card">
+                    <span className="stat-value">&lt;50ms</span>
+                    <span className="stat-label">Latency</span>
+                  </div>
                 </div>
               </div>
               <div className="hero-visual">
@@ -508,15 +672,20 @@ export default function App() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff' }}>Available Strategies</h2>
+              
               <div className="filter-bar" style={{ marginBottom: 0 }}>
                 {["all", "arb", "defi", "yield", "risk"].map((f) => (
-                  <button key={f} className={`filter-btn ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>{f}</button>
+                  <button key={f} className={`filter-btn ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>
+                    {f}
+                  </button>
                 ))}
               </div>
             </div>
 
             <div className="grid">
-              {filtered.map((s) => <StrategyCard key={s.id} strategy={s} onBuy={handleBuy} owned={owned.has(s.id)} />)}
+              {filtered.map((s) => (
+                <StrategyCard key={s.id} strategy={s} onBuy={handleBuy} owned={owned.has(s.id)} />
+              ))}
             </div>
 
             <AgentSimulator />
@@ -536,21 +705,35 @@ export default function App() {
              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: '#fff', marginBottom: '24px' }}>Developer Documentation</h2>
              <div className="sidebar-card">
                 <h3 className="sidebar-title">SDK Installation</h3>
-                <div className="t-line" style={{background: '#000', padding: '16px', borderRadius: '8px', fontFamily: 'monospace', color: 'var(--accent)'}}>npm install @shelby-protocol/sdk @aptos-labs/ts-sdk</div>
+                <div className="t-line" style={{background: '#000', padding: '16px', borderRadius: '8px', fontFamily: 'monospace', color: 'var(--accent)'}}>
+                  npm install @shelby-protocol/sdk @aptos-labs/ts-sdk
+                </div>
              </div>
              <div className="sidebar-card">
                 <h3 className="sidebar-title">Publishing Data (Agent A)</h3>
-                <p style={{color: 'var(--text2)', fontSize: '14px', lineHeight: 1.8}}>1. Call <code>generateCommitments()</code> to prepare your JSON blob.<br/>2. Create a transaction using <code>createRegisterBlobPayload()</code> on Aptos.<br/>3. Send the encrypted data to the network via <code>shelbyClient.rpc.putBlob()</code>.</p>
+                <p style={{color: 'var(--text2)', fontSize: '14px', lineHeight: 1.8}}>
+                  1. Call <code>generateCommitments()</code> to prepare your JSON blob.<br/>
+                  2. Create a transaction using <code>createRegisterBlobPayload()</code> on Aptos.<br/>
+                  3. Send the encrypted data to the network via <code>shelbyClient.rpc.putBlob()</code>.
+                </p>
              </div>
              <div className="sidebar-card">
                 <h3 className="sidebar-title">Retrieving Data (Agent B)</h3>
-                <p style={{color: 'var(--text2)', fontSize: '14px', lineHeight: 1.8}}>1. Send APT to the target author on Aptos (Smart Contract).<br/>2. Fetch from Shelby RPC. The network will verify your on-chain payment and return the decrypted data instantly.</p>
+                <p style={{color: 'var(--text2)', fontSize: '14px', lineHeight: 1.8}}>
+                  1. Send APT to the target author on Aptos (Smart Contract).<br/>
+                  2. Fetch from Shelby RPC. The network will verify your on-chain payment and return the decrypted data instantly.
+                </p>
              </div>
           </div>
         )}
       </main>
 
-      {toast && <div className="toast"><CheckCircle2 size={18} /> {toast}</div>}
+      {toast && (
+        <div className="toast">
+          <CheckCircle2 size={18} />
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
