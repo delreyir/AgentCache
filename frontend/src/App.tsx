@@ -1,6 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
+
+// ⚠️ IMPORTANT: In your VS Code, delete these mocks and uncomment the real imports below.
+// This is just to prevent build errors in the Canvas environment.
+
+// import { useWallet } from "@aptos-labs/wallet-adapter-react";
+// import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+// import { ShelbyClient, generateCommitments } from '@shelby-protocol/sdk/browser'; 
+
+const useWallet = () => ({ 
+  account: null as any, 
+  connected: false, 
+  connect: async (name: string) => {}, 
+  disconnect: async () => {}, 
+  signAndSubmitTransaction: async (payload: any) => ({ hash: "0xsimulatedhash" }),
+  wallets: [{name: "Petra"}] as any[] 
+});
+
+const Network = { TESTNET: 'testnet' };
+class AptosConfig { constructor(config: any) {} }
+class Aptos { 
+    constructor(config: any) {} 
+    async waitForTransaction(args: any) { return true; } 
+}
+
+
+// ⚙️ Configuration dyal Aptos Testnet w Smart Contract
+const aptosConfig = new AptosConfig({ network: Network.TESTNET });
+const aptos = new Aptos(aptosConfig);
+const CONTRACT_ADDRESS = "0xREPLACE_ME_WITH_YOUR_CONTRACT_ADDRESS"; // TODO: Bddelha mlli t-deployi contract dyalek f Step jaya
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
@@ -476,12 +504,53 @@ function PublishTab() {
   const [publishing, setPublishing] = useState(false);
   const [done, setDone] = useState(false);
 
-  const publish = () => {
+  // 🦊 Jbna l-wallet bach n-signiw l-upload d bsse7
+  const { signAndSubmitTransaction, account, connected } = useWallet();
+
+  const publish = async () => {
+    if (!connected || !account) {
+      alert("Please connect your Petra Wallet first!");
+      return;
+    }
+
     setPublishing(true);
-    setTimeout(() => {
-      setPublishing(false);
+    try {
+      /* ⚠️ HADA L-CODE D BSSE7 (Ghaykhdem mlli takhod l-Early Access role) ⚠️
+      
+      const shelbyClient = new ShelbyClient({ endpoint: 'https://api.testnet.shelby.xyz' });
+      const blobName = form.name.toLowerCase().replace(/\s/g, "_") + ".json";
+      const blobData = new TextEncoder().encode(json);
+
+      // 1. Shelby: Generate Commitments
+      const { commitments, root } = await generateCommitments(account.address, blobData);
+
+      // 2. Aptos: Register Blob On-chain (M3a Shelby)
+      const payload = shelbyClient.coordination.createRegisterBlobPayload({
+          name: blobName,
+          root: root,
+          size: blobData.length
+      });
+      
+      const tx = await signAndSubmitTransaction(payload);
+      await aptos.waitForTransaction({ transactionHash: tx.hash });
+
+      // 3. Shelby: Upload Data d bsse7 l-Hot Storage
+      await shelbyClient.rpc.putBlob({
+          account: account.address,
+          blobName: blobName,
+          blobData: blobData
+      });
+      */
+
+      // Simulation mo2a9ata bima jawbok l-Team dyal Shelby
+      await new Promise(r => setTimeout(r, 2000));
       setDone(true);
-    }, 2500);
+    } catch (error) {
+      console.error("Publish error:", error);
+      alert("Error publishing strategy!");
+    } finally {
+      setPublishing(false);
+    }
   };
 
   return (
@@ -554,7 +623,7 @@ export default function App() {
   const [owned, setOwned] = useState(new Set());
   
   // 🦊 USING THE OFFICIAL APTOS WALLET HOOK
-  const { account, connected, connect, disconnect, wallets } = useWallet();
+  const { account, connected, connect, disconnect, wallets, signAndSubmitTransaction } = useWallet();
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -588,16 +657,46 @@ export default function App() {
     }
   };
 
-  const handleBuy = (strategy: any) => {
+  const handleBuy = async (strategy: any) => {
     if (!connected || !account) {
       showToast("Please connect your Petra Wallet first!");
       return;
     }
-    if (!owned.has(strategy.id)) {
-      setOwned(prev => new Set([...prev, strategy.id]));
-      showToast(`✓ Access granted to ${strategy.name}`);
-    } else {
-      showToast(`ℹ You already own ${strategy.name}`);
+
+    try {
+      // 1. L-Khalass d Bsse7 b Aptos Smart Contract
+      /* ⚠️ 7iyd l-comments 3la hadchi mlli t-deployi l-contract dyalek ⚠️
+      const priceInOctas = Math.floor(parseFloat(strategy.price) * 100000000);
+      const payload = {
+          data: {
+              function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
+              typeArguments: [],
+              functionArguments: [
+                  strategy.author, 
+                  strategy.id, // Hada kay-mthel CID wla Blob Name
+                  priceInOctas
+              ]
+          }
+      };
+
+      const tx = await signAndSubmitTransaction(payload);
+      await aptos.waitForTransaction({ transactionHash: tx.hash });
+      console.log("Payment Confirmed On-Chain!");
+      
+      // 2. Shelby SDK: Fetch Decrypted Blob 
+      // ... Hna ghadi n-jbdou l-fichier mlli y-3tiwna l-accès ...
+      */
+
+      // Simulation mo2a9ata
+      if (!owned.has(strategy.id)) {
+        setOwned(prev => new Set([...prev, strategy.id]));
+        showToast(`✓ Access granted to ${strategy.name}`);
+      } else {
+        showToast(`ℹ You already own ${strategy.name}`);
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+      showToast("Transaction failed or rejected.");
     }
   };
 
@@ -629,7 +728,7 @@ export default function App() {
         >
           <Wallet size={16} />
           {connected && account?.address 
-            ? `${account.address.toString().slice(0, 6)}...${account.address.toString().slice(-4)}` 
+            ? `${String(account.address).slice(0, 6)}...${String(account.address).slice(-4)}` 
             : "Connect Petra"}
         </button>
       </nav>
