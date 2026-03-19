@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
-
-// ⚠️ IMPORTANT: In your VS Code, delete this mock and uncomment the real import below.
-// This is just to prevent build errors in the Canvas environment.
-const useWallet = () => ({ 
-  account: null as any, 
-  connected: false, 
-  connect: async (name: string) => {}, 
-  disconnect: async () => {}, 
-  wallets: [{name: "Petra"}] as any[] 
-});
-// import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
@@ -125,7 +115,7 @@ const styles = `
   }
 
   .nav-wallet:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
-  .nav-wallet.connected { border-color: var(--accent3); color: var(--accent3); }
+  .nav-wallet.connected { background: rgba(255, 102, 204, 0.15); border-color: rgba(255, 102, 204, 0.4); color: var(--accent); font-weight: 600; letter-spacing: 0.5px; }
 
   .main { position: relative; z-index: 1; padding: 40px 32px 80px; max-width: 1200px; margin: 0 auto; }
 
