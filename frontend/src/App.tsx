@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
 
-// 🦊 L-ADAPTER R-RA2ISIYA (DIRECT WINDOW DETECTION)
-// Msse7na l-import dyal useWallet bach n-tfadaw l-redirect l-site dyal Petra
+// ⚠️ M-H-I-M B-Z-A-F (F VS CODE) ⚠️
+// Hna f Canvas ki-tla3 error 7it ma-3ndnach l-package dyal Aptos.
+// F VS Code dyalek, msse7 had s-ster dyal "const useWallet..." w 7iyd slashes (//) mn l-import li te7to:
+const useWallet = () => ({ account: null as any, connected: false, connect: async (name: string) => {}, disconnect: async () => {}, wallets: [] as any[] });
+// import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
@@ -823,16 +826,15 @@ function PublishTab() {
 }
 
 // ==========================================
-// 🦊 L-APP R-RA2ISIYA (DIRECT WINDOW DETECTION)
+// 🦊 L-APP R-RA2ISIYA M3A L-ADAPTER RASSMI
 // ==========================================
 export default function App() {
   const [tab, setTab] = useState("marketplace");
   const [filter, setFilter] = useState("all");
   const [owned, setOwned] = useState(new Set());
   
-  // 🦊 States dyal Wallet (Direct window.aptos)
-  const [account, setAccount] = useState<any>(null);
-  const [connected, setConnected] = useState(false);
+  // 🦊 KHDEMNA B L-HOOK RASSMI DYAL APTOS WALLET
+  const { account, connected, connect, disconnect, wallets } = useWallet();
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -840,33 +842,18 @@ export default function App() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // 🦊 Logic dyal Connect direct m3a l-navigateur
   const handleConnect = async () => {
-    // 1. N-jerbo Martian Wallet hiya lowla ila kant (Optonnel)
-    if ("martian" in window) {
-      try {
-        const response = await (window as any).martian.connect();
-        setAccount({ address: response.address });
-        setConnected(true);
-        showToast("Martian Wallet Connected!");
-        return;
-      } catch (e) { console.error(e); }
-    } 
+    // N-9ellbo 3la Petra f la liste dyal les wallets b adapter l-jadid
+    const petra = wallets?.find((w: any) => w.name.toLowerCase().includes('petra'));
     
-    // 2. L-Logic r-ra2issiya: Connecti Petra
-    if ("aptos" in window) {
+    if (petra) {
       try {
-        const petra = (window as any).aptos;
-        const response = await petra.connect();
-        setAccount(response);
-        setConnected(true);
+        await connect(petra.name);
         showToast("Petra Wallet t-connecta mzyan!");
-      } catch (error) {
-        console.error("Connection error:", error);
-        showToast("Connection failed. Try unlocking Petra!");
+      } catch (e: any) {
+        showToast("Mochkil f l-connection wla sditi l-popup!");
       }
     } else {
-      // 3. Ila makayna ta whda
       window.open("https://petra.app/", "_blank");
       showToast("Khassk t-installi l-extension dyal Petra Wallet!");
     }
@@ -874,13 +861,7 @@ export default function App() {
 
   const handleDisconnect = async () => {
     try {
-      if ("martian" in window) {
-        await (window as any).martian.disconnect();
-      } else if ("aptos" in window) {
-        await (window as any).aptos.disconnect();
-      }
-      setAccount(null);
-      setConnected(false);
+      await disconnect();
       showToast("Wallet t-déconnecta");
     } catch (e) {
       console.error(e);
@@ -921,6 +902,7 @@ export default function App() {
           ))}
         </div>
 
+        {/* 🦊 L-Bouton d Wallet jdida */}
         <button 
           className={`nav-wallet ${connected ? "connected" : ""}`} 
           onClick={connected ? handleDisconnect : handleConnect}

@@ -1,16 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
+import { AptosWalletAdapterProvider } from '@aptos-labs/wallet-adapter-react';
+import { PetraWallet } from 'petra-plugin-wallet-adapter';
 
-// 🚀 N9ina l-fichier: msse7na l-Provider w l-plugins
-// 7it l-khedma dyal l-wallet wllat f App.tsx direct mn 'window.aptos'
-
-// 🌐 L-API dyal Shelby Protocol (Testnet) 
-// Had l-URL hiya li jabna mn l-Docs dyalhom, w biha gha n-t3amlo m3a l-Hot Storage
+// L-API dyal Shelby
 export const SHELBY_API_URL = "https://api.testnet.shelby.xyz";
+
+// N-sjjlou Petra Wallet f l-Adapter
+const wallets = [new PetraWallet()];
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <AptosWalletAdapterProvider plugins={wallets} autoConnect={true}>
+      <App />
+    </AptosWalletAdapterProvider>
   </React.StrictMode>
 );
