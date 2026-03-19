@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
-
-// ⚠️ M-H-I-M: F VS Code dyalek, 7iyd l-comment (//) mn s-ster li te7t w msse7 l-mock dyal useWallet.
-// import { useWallet } from "@aptos-labs/wallet-adapter-react";
-const useWallet = () => ({ account: null as any, connected: false, connect: async (name: any) => {}, disconnect: async () => {}, wallets: [] as any[] });
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
@@ -423,7 +420,7 @@ export default function App() {
   const [owned, setOwned] = useState(new Set());
   
   // 🦊 KHDEMNA B L-HOOK RASSMI DYAL APTOS WALLET
-  const { account, connected, connect, disconnect, wallets } = useWallet();
+  const { account, connected, connect, disconnect } = useWallet();
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -432,19 +429,26 @@ export default function App() {
   };
 
   const handleConnect = async () => {
-    // N-9ellbo 3la Petra f la liste dyal les wallets
-    const petra = wallets?.find((w: any) => w.name === 'Petra' || w.name === 'PetraWallet');
-    
-    if (petra) {
-      try {
-        await connect(petra.name);
-        showToast("Petra Wallet t-connecta mzyan!");
-      } catch (e: any) {
-        showToast("Mochkil f l-connection wla sditiha!");
+    try {
+      // Kima f datamesh: N-3iyto l-Wallet b smiytha direct (AIP-62 Standard)
+      // Hadchi kay-garanti anaho y-7el l-popup dyal l-extension ila kant m-installiya
+      await connect("Petra" as any);
+      showToast("Petra Wallet t-connecta mzyan!");
+    } catch (error: any) {
+      console.error("Connection error:", error);
+      // Ila kan l-mochkil mn l-extension (ma-kaynach wla ma-m'installach)
+      if (
+        error.name === 'WalletReadyStateError' || 
+        error.name === 'WalletNotFoundError' || 
+        error.message?.toLowerCase().includes('not found') ||
+        error.message?.toLowerCase().includes('unsupported')
+      ) {
+        window.open("https://petra.app/", "_blank");
+        showToast("Khassk t-installi l-extension dyal Petra Wallet!");
+      } else {
+        // Ila l-user sed l-popup bla ma y-connecti
+        showToast("Sditi l-popup wla rfdti l-connection!");
       }
-    } else {
-      window.open("https://petra.app/", "_blank");
-      showToast("Khassk t-installi l-extension dyal Petra Wallet!");
     }
   };
 
