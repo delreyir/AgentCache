@@ -6,10 +6,5 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173
-  },
-  build: {
-    rollupOptions: {
-      external: ['@telegram-apps/bridge']
-    }
   }
 })
