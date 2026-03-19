@@ -4,10 +4,10 @@ import { AptosWalletAdapterProvider } from '@aptos-labs/wallet-adapter-react';
 import { PetraWallet } from 'petra-plugin-wallet-adapter';
 import App from './App.tsx';
 
-// 🌐 L-API dyal Shelby Protocol (Testnet)
+// 🌐 Shelby Protocol API (Testnet)
 export const SHELBY_API_URL = "https://api.testnet.shelby.xyz";
 
-// 🚀 N-sjjlou Petra Wallet b7al kima dar f datamesh
+// 🚀 Register Petra Wallet explicitly
 const wallets = [new PetraWallet()];
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
