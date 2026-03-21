@@ -1,27 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap, AlertTriangle } from "lucide-react";
-
-// ⚠️ IMPORTANT: In your VS Code, delete these mocks and uncomment the real imports below.
-// This is just to prevent build errors in the Canvas environment.
-
-// import { useWallet } from "@aptos-labs/wallet-adapter-react";
-// import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
-
-const useWallet = () => ({ 
-  account: null as any, 
-  connected: false, 
-  connect: async (name: string) => {}, 
-  disconnect: async () => {}, 
-  signAndSubmitTransaction: async (payload: any) => ({ hash: "0xsimulatedhash" }),
-  wallets: [{name: "Petra"}] as any[] 
-});
-
-const Network = { TESTNET: 'testnet' };
-class AptosConfig { constructor(config: any) {} }
-class Aptos { 
-    constructor(config: any) {} 
-    async waitForTransaction(args: any) { return true; } 
-}
+import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
 // ⚙️ Aptos Testnet Configuration
 const aptosConfig = new AptosConfig({ network: Network.TESTNET });
@@ -376,8 +355,28 @@ export default function App() {
   const [owned, setOwned] = useState(new Set());
   const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
 
-  // 🔥 OFFICIAL WALLET ADAPTER 🔥
-  const { account, connected, connect, disconnect, wallets, signAndSubmitTransaction } = useWallet();
+  // 🔥 LOCAL STATE DIRECT APTOS (Bypasses React Adapter Issues) 🔥
+  const [account, setAccount] = useState<any>(null);
+  const [connected, setConnected] = useState(false);
+
+  // Auto-reconnect if already approved
+  useEffect(() => {
+    const checkConnection = async () => {
+      if ("aptos" in window) {
+        try {
+          const petra = (window as any).aptos;
+          const acct = await petra.account();
+          if (acct) {
+            setAccount(acct);
+            setConnected(true);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    };
+    checkConnection();
+  }, []);
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => { 
     setToast({msg, type}); 
@@ -385,33 +384,37 @@ export default function App() {
   };
 
   const handleConnect = async () => {
-    // Find Petra Wallet
-    const petra = wallets?.find((w: any) => w.name === 'Petra' || w.name === 'PetraWallet');
-    if (petra) { 
-      try { 
-        await connect(petra.name); 
-        showToast("Petra Wallet connected successfully!", "success"); 
-      } catch (e) { 
-        console.error("Connection Error:", e);
-        showToast("Connection failed or rejected.", "error"); 
-      } 
-    }
-    else { 
-      window.open("https://petra.app/", "_blank"); 
-      showToast("Please install the Petra Wallet extension!", "error"); 
+    if ("aptos" in window) {
+      try {
+        const petra = (window as any).aptos;
+        const response = await petra.connect();
+        setAccount(response);
+        setConnected(true);
+        showToast("Petra Wallet connected successfully!", "success");
+      } catch (error) {
+        console.error(error);
+        showToast("Connection failed or rejected.", "error");
+      }
+    } else {
+      window.open("https://petra.app/", "_blank");
+      showToast("Please install Petra Wallet!", "error");
     }
   };
 
-  const handleDisconnect = async () => { 
-    try { 
-      await disconnect(); 
-      showToast("Wallet disconnected successfully.", "success"); 
-    } catch (e) { 
-      console.error(e); 
-    } 
+  const handleDisconnect = async () => {
+    if ("aptos" in window) {
+      try {
+        await (window as any).aptos.disconnect();
+        setAccount(null);
+        setConnected(false);
+        showToast("Wallet disconnected successfully.", "success");
+      } catch (e) {
+        console.error(e);
+      }
+    }
   };
 
-  // 🔥 REAL SMART CONTRACT PAYMENT 🔥
+  // 🔥 REAL SMART CONTRACT PAYMENT (Direct Petra Call) 🔥
   const handleBuy = async (strategy: any) => {
     if (!connected || !account) { 
         showToast("Please connect your Petra Wallet first!", "error"); 
@@ -426,23 +429,22 @@ export default function App() {
     try {
       showToast("Please wait, signing transaction...", "success");
       
-      // Convert APT to Octas (1 APT = 100,000,000 Octas)
       const priceInOctas = Math.floor(parseFloat(strategy.price) * 100000000);
       
-      // Correct payload for the wallet adapter
+      // Payload specific to direct window.aptos usage
       const payload = {
-          data: {
-              function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
-              typeArguments: [],
-              functionArguments: [
-                  strategy.author, 
-                  strategy.id,
-                  priceInOctas
-              ]
-          }
+          type: "entry_function_payload",
+          function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
+          type_arguments: [],
+          arguments: [
+              strategy.author, 
+              strategy.id,
+              priceInOctas
+          ]
       };
 
-      const tx = await signAndSubmitTransaction(payload);
+      const petra = (window as any).aptos;
+      const tx = await petra.signAndSubmitTransaction(payload);
       await aptos.waitForTransaction({ transactionHash: tx.hash });
       
       setOwned(prev => new Set([...prev, strategy.id])); 
