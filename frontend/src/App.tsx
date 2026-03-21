@@ -1,16 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
 
-// HADA HOUWA L-IMPORT L-7A9I9I (Msse7na l-mock l-9dim b sifa niha2iya)
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+// ⚠️ IMPORTANT: In your VS Code, delete these mocks and uncomment the real imports below.
+// This is just to prevent build errors in the Canvas environment.
+
+// import { useWallet } from "@aptos-labs/wallet-adapter-react";
+// import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+
+const useWallet = () => ({ 
+  account: null as any, 
+  connected: false, 
+  connect: async (name: string) => {}, 
+  disconnect: async () => {}, 
+  signAndSubmitTransaction: async (payload: any) => ({ hash: "0xsimulatedhash" }),
+  wallets: [{name: "Petra"}] as any[] 
+});
+
+const Network = { TESTNET: 'testnet' };
+class AptosConfig { constructor(config: any) {} }
+class Aptos { 
+    constructor(config: any) {} 
+    async waitForTransaction(args: any) { return true; } 
+}
 
 // ⚙️ Configuration dyal Aptos Testnet
 const aptosConfig = new AptosConfig({ network: Network.TESTNET });
 const aptos = new Aptos(aptosConfig);
 
-// ⚠️ M-H-I-M: Mlli t-deployi l-contract dyalek (Step 4), 7et l-adresse hna:
-const CONTRACT_ADDRESS = "0xREPLACE_ME_WITH_YOUR_CONTRACT_ADDRESS"; 
+// 🔥 L-Adresse d-Bsse7 dyal l-Contract dyalek
+const CONTRACT_ADDRESS = "0x92bfb04d2f4d99159174ad935746661551a84f71877950e74647b317f1f070bb"; 
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
@@ -18,18 +36,18 @@ const styles = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #1A1615;
-    --bg2: #221D1C;
-    --bg3: #2A2422;
-    --border: #3A3230;
-    --border2: #4A403E;
-    --accent: #FF66CC;
+    --bg: #080b0f;
+    --bg2: #0d1117;
+    --bg3: #131920;
+    --border: #1e2d3d;
+    --border2: #2a3f52;
+    --accent: #00e5ff;
     --accent2: #7c3aed;
     --accent3: #10b981;
     --warn: #f59e0b;
-    --text: #FDF9F7;
-    --text2: #AFA5A2;
-    --text3: #756A67;
+    --text: #e2e8f0;
+    --text2: #8892a4;
+    --text3: #4a5568;
     --red: #ef4444;
     --font-mono: 'Space Mono', monospace;
     --font-display: 'Syne', sans-serif;
@@ -42,8 +60,8 @@ const styles = `
   .grid-bg {
     position: fixed; inset: 0;
     background-image:
-      linear-gradient(rgba(255, 102, 204, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 102, 204, 0.03) 1px, transparent 1px);
+      linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
     background-size: 40px 40px; pointer-events: none; z-index: 0;
   }
 
@@ -51,7 +69,7 @@ const styles = `
     position: sticky; top: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 32px; height: 70px;
-    background: rgba(26, 22, 21, 0.8); backdrop-filter: blur(12px);
+    background: rgba(8, 11, 15, 0.8); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
 
@@ -72,20 +90,20 @@ const styles = `
     cursor: pointer; background: var(--bg3); color: var(--text2); transition: all 0.2s;
   }
   .nav-wallet:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
-  .nav-wallet.connected { background: rgba(255, 102, 204, 0.15); border-color: rgba(255, 102, 204, 0.4); color: var(--accent); font-weight: 600; }
+  .nav-wallet.connected { border-color: var(--accent3); color: var(--accent3); }
 
   .main { position: relative; z-index: 1; padding: 40px 32px 80px; max-width: 1200px; margin: 0 auto; }
 
   .hero { display: flex; align-items: center; justify-content: space-between; gap: 60px; padding: 40px 0 60px; }
   .hero-tag {
     display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
-    background: rgba(255, 102, 204, 0.05); border: 1px solid var(--accent);
+    background: rgba(0, 229, 255, 0.05); border: 1px solid var(--accent);
     border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--accent);
     text-transform: uppercase; margin-bottom: 24px;
   }
 
-  .hero-title { font-family: var(--font-display); font-size: 56px; font-weight: 800; line-height: 1.2; color: #fff; margin-bottom: 32px; }
-  .hero-title em { color: var(--accent); font-style: normal; text-shadow: 0 0 30px rgba(255, 102, 204, 0.3); }
+  .hero-title { font-family: var(--font-display); font-size: 56px; font-weight: 800; line-height: 1.2; color: #fff; margin-bottom: 32px; letter-spacing: -2px;}
+  .hero-title em { color: var(--accent); font-style: normal; text-shadow: 0 0 30px rgba(0, 229, 255, 0.3); }
 
   .hero-desc { font-size: 14px; color: var(--text2); line-height: 1.8; max-width: 500px; margin-bottom: 40px; }
 
@@ -107,7 +125,7 @@ const styles = `
 
   .filter-bar { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
   .filter-btn { padding: 8px 16px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text3); cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255, 102, 204, 0.05); }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0, 229, 255, 0.05); }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
   .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden; }
@@ -119,7 +137,7 @@ const styles = `
   .card-body { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; min-height: 40px; }
   .card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
   .tag { font-size: 10px; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; font-weight: 700; }
-  .tag-arb { background: rgba(255, 102, 204, 0.1); color: var(--accent); border: 1px solid rgba(255, 102, 204, 0.2); }
+  .tag-arb { background: rgba(0, 229, 255, 0.1); color: var(--accent); border: 1px solid rgba(0, 229, 255, 0.2); }
   .tag-defi { background: rgba(124, 58, 237, 0.15); color: var(--accent2); border: 1px solid rgba(124, 58, 237, 0.3); }
   .tag-yield { background: rgba(16, 185, 129, 0.1); color: var(--accent3); border: 1px solid rgba(16, 185, 129, 0.2); }
   .tag-risk { background: rgba(245, 158, 11, 0.1); color: var(--warn); border: 1px solid rgba(245, 158, 11, 0.2); }
@@ -149,7 +167,7 @@ const styles = `
   .sim-agent-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .sim-agent-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
   .icon-publisher { background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3); }
-  .icon-consumer { background: rgba(255, 102, 204, 0.1); border: 1px solid rgba(255, 102, 204, 0.2); }
+  .icon-consumer { background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.2); }
   .sim-agent-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; }
   .sim-agent-role { font-size: 11px; color: var(--text3); }
   .sim-log { font-size: 11px; line-height: 1.8; color: var(--text3); min-height: 120px; }
@@ -181,13 +199,14 @@ const styles = `
   .flow-num { width: 24px; height: 24px; border-radius: 4px; background: var(--bg3); border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
 `;
 
+// 🔥 Les adresses d bsse7 bach t9dr t-siyft l-flouss d bsse7!
 const STRATEGIES = [
-  { id: "strat_001", name: "Delta Neutral Arb v2", author: "0x7f3a...b91c", desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.", tags: ["arb", "defi"], price: "0.05", metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" }, roiUp: true },
-  { id: "strat_002", name: "Yield Optimizer Alpha", author: "0x2e9c...44fa", desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.", tags: ["yield", "defi"], price: "0.03", metrics: { roi: "+18.7%", calls: "847", risk: "MED" }, roiUp: true },
-  { id: "strat_003", name: "Mempool Sniper Bot", author: "0xb3f1...9e2d", desc: "Monitors pending transactions for MEV opportunities. Targets sandwich-resistant protocols.", tags: ["arb", "risk"], price: "0.10", metrics: { roi: "-2.1%", calls: "312", risk: "HIGH" }, roiUp: false },
-  { id: "strat_004", name: "Cross-Chain Rebalancer", author: "0x91ad...c77b", desc: "Bridges assets between Aptos, Sui, and EVM chains to capture spread. Uses LayerZero.", tags: ["defi", "yield"], price: "0.04", metrics: { roi: "+22.5%", calls: "593", risk: "MED" }, roiUp: true },
-  { id: "strat_005", name: "Volatility Harvester", author: "0x5c2e...f001", desc: "Sells volatility via options protocols during high-IV regimes. Hedges gamma dynamically.", tags: ["defi", "risk"], price: "0.10", metrics: { roi: "+41.8%", calls: "2.1k", risk: "HIGH" }, roiUp: true },
-  { id: "strat_006", name: "LST Basis Trader", author: "0x1a7b...e33c", desc: "Captures basis between liquid staking tokens and their underlying assets. Automated settlement.", tags: ["yield", "arb"], price: "0.02", metrics: { roi: "+9.3%", calls: "421", risk: "LOW" }, roiUp: true }
+  { id: "strat_001", name: "Delta Neutral Arb v2", author: CONTRACT_ADDRESS, desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.", tags: ["arb", "defi"], price: "0.05", metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" }, roiUp: true },
+  { id: "strat_002", name: "Yield Optimizer Alpha", author: CONTRACT_ADDRESS, desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.", tags: ["yield", "defi"], price: "0.03", metrics: { roi: "+18.7%", calls: "847", risk: "MED" }, roiUp: true },
+  { id: "strat_003", name: "Mempool Sniper Bot", author: CONTRACT_ADDRESS, desc: "Monitors pending transactions for MEV opportunities. Targets sandwich-resistant protocols.", tags: ["arb", "risk"], price: "0.10", metrics: { roi: "-2.1%", calls: "312", risk: "HIGH" }, roiUp: false },
+  { id: "strat_004", name: "Cross-Chain Rebalancer", author: CONTRACT_ADDRESS, desc: "Bridges assets between Aptos, Sui, and EVM chains to capture spread. Uses LayerZero.", tags: ["defi", "yield"], price: "0.04", metrics: { roi: "+22.5%", calls: "593", risk: "MED" }, roiUp: true },
+  { id: "strat_005", name: "Volatility Harvester", author: CONTRACT_ADDRESS, desc: "Sells volatility via options protocols during high-IV regimes. Hedges gamma dynamically.", tags: ["defi", "risk"], price: "0.10", metrics: { roi: "+41.8%", calls: "2.1k", risk: "HIGH" }, roiUp: true },
+  { id: "strat_006", name: "LST Basis Trader", author: CONTRACT_ADDRESS, desc: "Captures basis between liquid staking tokens and their underlying assets. Automated settlement.", tags: ["yield", "arb"], price: "0.02", metrics: { roi: "+9.3%", calls: "421", risk: "LOW" }, roiUp: true }
 ];
 
 const AGENT_A_LOG = [
@@ -273,7 +292,10 @@ function StrategyCard({ strategy, onBuy, owned }: any) {
     <div className="card" onClick={() => onBuy(strategy)}>
       <div className="card-header">
         <div className="card-icon"><ShieldCheck size={20} /></div>
-        <div><div className="card-title">{strategy.name}</div><div className="card-author">by {strategy.author}</div></div>
+        <div>
+          <div className="card-title">{strategy.name}</div>
+          <div className="card-author">by {strategy.author.slice(0,6)}...{strategy.author.slice(-4)}</div>
+        </div>
       </div>
       <div className="card-body">{strategy.desc}</div>
       <div className="card-tags">{strategy.tags.map((t: string) => <span key={t} className={`tag ${tagMap[t]}`}>{t}</span>)}</div>
@@ -296,7 +318,7 @@ function PublishTab() {
   const [publishing, setPublishing] = useState(false);
   const [done, setDone] = useState(false);
 
-  const { signAndSubmitTransaction, account, connected } = useWallet();
+  const { account, connected } = useWallet();
 
   const publish = async () => {
     if (!connected || !account) {
@@ -305,7 +327,7 @@ function PublishTab() {
     }
     setPublishing(true);
     try {
-      // Logic for real Shelby upload goes here after Early Access
+      // Simulation for Publish (We need Shelby SDK early access for this to work on-chain)
       await new Promise(r => setTimeout(r, 2000));
       setDone(true);
     } catch (error) {
@@ -355,7 +377,7 @@ export default function App() {
   const [owned, setOwned] = useState(new Set());
   
   // 🔥 L-WALLET L-7A9I9IYA KHDAMA HNA 🔥
-  const { account, connected, connect, disconnect, wallets } = useWallet();
+  const { account, connected, connect, disconnect, wallets, signAndSubmitTransaction } = useWallet();
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 4000); };
@@ -378,12 +400,49 @@ export default function App() {
 
   const handleDisconnect = async () => { try { await disconnect(); showToast("Wallet disconnected successfully."); } catch (e) { console.error(e); } };
 
+  // 🔥 L-KHALASS D-BSSE7 B SMART CONTRACT 🔥
   const handleBuy = async (strategy: any) => {
-    if (!connected || !account) { showToast("Please connect your Petra Wallet first!"); return; }
+    if (!connected || !account) { 
+        showToast("Khassk t-connecti Petra Wallet 9bel!"); 
+        return; 
+    }
+    
+    if (owned.has(strategy.id)) {
+        showToast(`ℹ You already own ${strategy.name}`);
+        return;
+    }
+
     try {
-      if (!owned.has(strategy.id)) { setOwned(prev => new Set([...prev, strategy.id])); showToast(`✓ Access granted to ${strategy.name}`); }
-      else { showToast(`ℹ You already own ${strategy.name}`); }
-    } catch (error) { showToast("Transaction failed or rejected."); }
+      showToast("Tsnna chwiya, kan-sinyiw t-transaction...");
+      
+      // Conversion d l-flouss l Octas (1 APT = 100,000,000 Octas)
+      const priceInOctas = Math.floor(parseFloat(strategy.price) * 100000000);
+      
+      const payload = {
+          data: {
+              function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
+              typeArguments: [],
+              functionArguments: [
+                  strategy.author, 
+                  strategy.id, // Hada kay-mthel CID / ID d Strategy
+                  priceInOctas
+              ]
+          }
+      };
+
+      // Had s-ster houwa li ki-tla3 lik l-wallet pop-up f s-site!
+      const tx = await signAndSubmitTransaction(payload);
+      
+      // Kan-tsnnaw l-blockchain dyal Aptos t-confirmi l-khalass
+      await aptos.waitForTransaction({ transactionHash: tx.hash });
+      
+      setOwned(prev => new Set([...prev, strategy.id])); 
+      showToast(`✓ Flouss dazo! Access granted l ${strategy.name}`);
+      
+    } catch (error) { 
+      console.error(error);
+      showToast("Transaction rfedha l-user wla failed."); 
+    }
   };
 
   const filtered = filter === "all" ? STRATEGIES : STRATEGIES.filter((s) => s.tags.includes(filter));
