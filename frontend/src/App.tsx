@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
+import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap, AlertTriangle } from "lucide-react";
+
+// 🔥 HADO HUMA LES IMPORTS RASSMIYIN (Khllihom kima homa f VS Code!)
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
 // ⚙️ Configuration dyal Aptos Testnet
@@ -15,12 +18,12 @@ const styles = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #1A1615;
-    --bg2: #221D1C;
-    --bg3: #2A2422;
-    --border: #3A3230;
-    --border2: #4A403E;
-    --accent: #FF66CC;
+    --bg: #0b0f19;
+    --bg2: #151a27;
+    --bg3: #1e2536;
+    --border: #2a3548;
+    --border2: #3a475e;
+    --accent: #FF66CC; /* PINK THEME RESTORED */
     --accent2: #7c3aed;
     --accent3: #10b981;
     --warn: #f59e0b;
@@ -48,7 +51,7 @@ const styles = `
     position: sticky; top: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 32px; height: 70px;
-    background: rgba(26, 22, 21, 0.8); backdrop-filter: blur(12px);
+    background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
 
@@ -81,7 +84,7 @@ const styles = `
     text-transform: uppercase; margin-bottom: 24px;
   }
 
-  .hero-title { font-family: var(--font-display); font-size: 56px; font-weight: 800; line-height: 1.2; color: #fff; margin-bottom: 32px; }
+  .hero-title { font-family: var(--font-display); font-size: 56px; font-weight: 800; line-height: 1.2; color: #fff; margin-bottom: 32px; letter-spacing: -2px;}
   .hero-title em { color: var(--accent); font-style: normal; text-shadow: 0 0 30px rgba(255, 102, 204, 0.3); }
 
   .hero-desc { font-size: 14px; color: var(--text2); line-height: 1.8; max-width: 500px; margin-bottom: 40px; }
@@ -132,7 +135,7 @@ const styles = `
   .price span { font-size: 10px; color: var(--text3); }
   .buy-btn { background: var(--accent); color: #000; border: none; padding: 8px 20px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
   .buy-btn:hover { background: #fff; transform: scale(1.05); }
-  .buy-btn.owned { background: var(--accent3); }
+  .buy-btn.owned { background: var(--accent3); color: #000; }
 
   .simulator { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 40px; }
   .sim-header { padding: 14px 20px; background: var(--bg3); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
@@ -169,7 +172,9 @@ const styles = `
   .publish-btn { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; font-family: var(--font-mono); font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
   .publish-btn:hover { background: #fff; }
 
+  /* M-H-I-M: Toast styling updated to handle errors visually */
   .toast { position: fixed; bottom: 24px; right: 24px; z-index: 300; background: var(--bg2); border: 1px solid var(--accent3); border-radius: 8px; padding: 14px 20px; font-size: 13px; color: var(--accent3); display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s ease; }
+  .toast.error { border-color: var(--red); color: var(--red); }
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   
   .sidebar-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
@@ -352,80 +357,82 @@ export default function App() {
   const [tab, setTab] = useState("marketplace");
   const [filter, setFilter] = useState("all");
   const [owned, setOwned] = useState(new Set());
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
 
-  // 🔥 DIRECT WINDOW.APTOS LOGIC (No Adapter Bugs) 🔥
-  const [account, setAccount] = useState<any>(null);
-  const [connected, setConnected] = useState(false);
+  // 🔥 L-WALLET R-RASSMIYA KHDAMA HNA (The Official Adapter) 🔥
+  const { account, connected, connect, disconnect, wallets, signAndSubmitTransaction } = useWallet();
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 4000); };
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => { 
+    setToast({msg, type}); 
+    setTimeout(() => setToast(null), 4000); 
+  };
 
-  // Khdmna b window.aptos direct bach ma-y-crachich lik w n-garantiwha t-ban!
   const handleConnect = async () => {
-    if ("aptos" in window) {
-      try {
-        const petra = (window as any).aptos;
-        const response = await petra.connect();
-        setAccount(response);
-        setConnected(true);
-        showToast("Petra Wallet connected successfully!");
-      } catch (error) {
-        console.error(error);
-        showToast("Connection failed or rejected.");
-      }
-    } else {
-      window.open("https://petra.app/", "_blank");
-      showToast("Please install Petra Wallet!");
+    // Kat-9elleb 3la Petra Wallet
+    const petra = wallets?.find((w: any) => w.name === 'Petra' || w.name === 'PetraWallet');
+    if (petra) { 
+      try { 
+        await connect(petra.name); 
+        showToast("Petra Wallet connected successfully!", "success"); 
+      } catch (e) { 
+        console.error("Connection Error:", e);
+        showToast("Connection failed or rejected.", "error"); 
+      } 
+    }
+    else { 
+      window.open("https://petra.app/", "_blank"); 
+      showToast("Please install Petra Wallet!", "error"); 
     }
   };
 
-  const handleDisconnect = async () => {
-    if ("aptos" in window) {
-      await (window as any).aptos.disconnect();
-      setAccount(null);
-      setConnected(false);
-      showToast("Wallet disconnected successfully.");
-    }
+  const handleDisconnect = async () => { 
+    try { 
+      await disconnect(); 
+      showToast("Wallet disconnected successfully.", "success"); 
+    } catch (e) { 
+      console.error(e); 
+    } 
   };
 
   // 🔥 L-KHALASS D-BSSE7 B SMART CONTRACT 🔥
   const handleBuy = async (strategy: any) => {
     if (!connected || !account) { 
-        showToast("Khassk t-connecti Petra Wallet 9bel!"); 
+        showToast("Khassk t-connecti Petra Wallet 9bel!", "error"); 
         return; 
     }
     
     if (owned.has(strategy.id)) {
-        showToast(`ℹ You already own ${strategy.name}`);
+        showToast(`ℹ You already own ${strategy.name}`, "success");
         return;
     }
 
     try {
-      showToast("Tsnna chwiya, kan-sinyiw t-transaction...");
+      showToast("Tsnna chwiya, kan-sinyiw t-transaction...", "success");
       
       const priceInOctas = Math.floor(parseFloat(strategy.price) * 100000000);
       
+      // Had payload howa s-s7i7 b-nisba l-adapter l-jdid
       const payload = {
-          type: "entry_function_payload",
-          function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
-          type_arguments: [],
-          arguments: [
-              strategy.author, 
-              strategy.id,
-              priceInOctas
-          ]
+          data: {
+              function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
+              typeArguments: [],
+              functionArguments: [
+                  strategy.author, 
+                  strategy.id,
+                  priceInOctas
+              ]
+          }
       };
 
-      const petra = (window as any).aptos;
-      const tx = await petra.signAndSubmitTransaction(payload);
+      const tx = await signAndSubmitTransaction(payload);
       await aptos.waitForTransaction({ transactionHash: tx.hash });
       
       setOwned(prev => new Set([...prev, strategy.id])); 
-      showToast(`✓ Flouss dazo! Access granted l ${strategy.name}`);
+      showToast(`✓ Flouss dazo! Access granted l ${strategy.name}`, "success");
       
     } catch (error) { 
-      console.error(error);
-      showToast("Transaction rfedha l-user wla failed."); 
+      console.error("Buy Error:", error);
+      showToast("Transaction rfedha l-user wla failed.", "error"); 
     }
   };
 
@@ -500,7 +507,14 @@ export default function App() {
           </div>
         )}
       </main>
-      {toast && <div className="toast"><CheckCircle2 size={18} /> {toast}</div>}
+      
+      {/* Toast Update: Ki-biyen les erreurs b l-7mer w n-naja7 b l-khedar */}
+      {toast && (
+        <div className={`toast ${toast.type}`}>
+          {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+          {toast.msg}
+        </div>
+      )}
     </div>
   );
 }
