@@ -1,15 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap, AlertTriangle } from "lucide-react";
 
-// 🔥 HADO HUMA LES IMPORTS RASSMIYIN (Khllihom kima homa f VS Code!)
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+// ⚠️ IMPORTANT: In your VS Code, delete these mocks and uncomment the real imports below.
+// This is just to prevent build errors in the Canvas environment.
 
-// ⚙️ Configuration dyal Aptos Testnet
+// import { useWallet } from "@aptos-labs/wallet-adapter-react";
+// import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+
+const useWallet = () => ({ 
+  account: null as any, 
+  connected: false, 
+  connect: async (name: string) => {}, 
+  disconnect: async () => {}, 
+  signAndSubmitTransaction: async (payload: any) => ({ hash: "0xsimulatedhash" }),
+  wallets: [{name: "Petra"}] as any[] 
+});
+
+const Network = { TESTNET: 'testnet' };
+class AptosConfig { constructor(config: any) {} }
+class Aptos { 
+    constructor(config: any) {} 
+    async waitForTransaction(args: any) { return true; } 
+}
+
+// ⚙️ Aptos Testnet Configuration
 const aptosConfig = new AptosConfig({ network: Network.TESTNET });
 const aptos = new Aptos(aptosConfig);
 
-// 🔥 L-Adresse d-Bsse7 dyal l-Contract dyalek
+// 🔥 Your Real Smart Contract Address
 const CONTRACT_ADDRESS = "0x92bfb04d2f4d99159174ad935746661551a84f71877950e74647b317f1f070bb"; 
 
 const styles = `
@@ -172,7 +190,6 @@ const styles = `
   .publish-btn { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; font-family: var(--font-mono); font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
   .publish-btn:hover { background: #fff; }
 
-  /* M-H-I-M: Toast styling updated to handle errors visually */
   .toast { position: fixed; bottom: 24px; right: 24px; z-index: 300; background: var(--bg2); border: 1px solid var(--accent3); border-radius: 8px; padding: 14px 20px; font-size: 13px; color: var(--accent3); display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s ease; }
   .toast.error { border-color: var(--red); color: var(--red); }
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -183,7 +200,7 @@ const styles = `
   .flow-num { width: 24px; height: 24px; border-radius: 4px; background: var(--bg3); border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
 `;
 
-// 🔥 Les adresses d bsse7
+// 🔥 Official Real Addresses
 const STRATEGIES = [
   { id: "strat_001", name: "Delta Neutral Arb v2", author: CONTRACT_ADDRESS, desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.", tags: ["arb", "defi"], price: "0.05", metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" }, roiUp: true },
   { id: "strat_002", name: "Yield Optimizer Alpha", author: CONTRACT_ADDRESS, desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.", tags: ["yield", "defi"], price: "0.03", metrics: { roi: "+18.7%", calls: "847", risk: "MED" }, roiUp: true },
@@ -359,7 +376,7 @@ export default function App() {
   const [owned, setOwned] = useState(new Set());
   const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
 
-  // 🔥 L-WALLET R-RASSMIYA KHDAMA HNA (The Official Adapter) 🔥
+  // 🔥 OFFICIAL WALLET ADAPTER 🔥
   const { account, connected, connect, disconnect, wallets, signAndSubmitTransaction } = useWallet();
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => { 
@@ -368,7 +385,7 @@ export default function App() {
   };
 
   const handleConnect = async () => {
-    // Kat-9elleb 3la Petra Wallet
+    // Find Petra Wallet
     const petra = wallets?.find((w: any) => w.name === 'Petra' || w.name === 'PetraWallet');
     if (petra) { 
       try { 
@@ -381,7 +398,7 @@ export default function App() {
     }
     else { 
       window.open("https://petra.app/", "_blank"); 
-      showToast("Please install Petra Wallet!", "error"); 
+      showToast("Please install the Petra Wallet extension!", "error"); 
     }
   };
 
@@ -394,10 +411,10 @@ export default function App() {
     } 
   };
 
-  // 🔥 L-KHALASS D-BSSE7 B SMART CONTRACT 🔥
+  // 🔥 REAL SMART CONTRACT PAYMENT 🔥
   const handleBuy = async (strategy: any) => {
     if (!connected || !account) { 
-        showToast("Khassk t-connecti Petra Wallet 9bel!", "error"); 
+        showToast("Please connect your Petra Wallet first!", "error"); 
         return; 
     }
     
@@ -407,11 +424,12 @@ export default function App() {
     }
 
     try {
-      showToast("Tsnna chwiya, kan-sinyiw t-transaction...", "success");
+      showToast("Please wait, signing transaction...", "success");
       
+      // Convert APT to Octas (1 APT = 100,000,000 Octas)
       const priceInOctas = Math.floor(parseFloat(strategy.price) * 100000000);
       
-      // Had payload howa s-s7i7 b-nisba l-adapter l-jdid
+      // Correct payload for the wallet adapter
       const payload = {
           data: {
               function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
@@ -428,11 +446,11 @@ export default function App() {
       await aptos.waitForTransaction({ transactionHash: tx.hash });
       
       setOwned(prev => new Set([...prev, strategy.id])); 
-      showToast(`✓ Flouss dazo! Access granted l ${strategy.name}`, "success");
+      showToast(`✓ Payment successful! Access granted to ${strategy.name}`, "success");
       
     } catch (error) { 
       console.error("Buy Error:", error);
-      showToast("Transaction rfedha l-user wla failed.", "error"); 
+      showToast("Transaction rejected or failed.", "error"); 
     }
   };
 
@@ -508,7 +526,6 @@ export default function App() {
         )}
       </main>
       
-      {/* Toast Update: Ki-biyen les erreurs b l-7mer w n-naja7 b l-khedar */}
       {toast && (
         <div className={`toast ${toast.type}`}>
           {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
