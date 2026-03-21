@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap, AlertTriangle } from "lucide-react";
-import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+
+// ⚠️ IMPORTANT: In your VS Code, delete these mocks and uncomment the real import below.
+// import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+
+const Network = { TESTNET: 'testnet' };
+class AptosConfig { constructor(config: any) {} }
+class Aptos { 
+    constructor(config: any) {} 
+    async waitForTransaction(args: any) { return true; } 
+}
 
 // ⚙️ Aptos Testnet Configuration
 const aptosConfig = new AptosConfig({ network: Network.TESTNET });
@@ -20,7 +29,7 @@ const styles = `
     --bg3: #1e2536;
     --border: #2a3548;
     --border2: #3a475e;
-    --accent: #FF66CC; /* PINK THEME RESTORED */
+    --accent: #FF66CC; /* PINK THEME */
     --accent2: #7c3aed;
     --accent3: #10b981;
     --warn: #f59e0b;
@@ -355,7 +364,7 @@ export default function App() {
   const [owned, setOwned] = useState(new Set());
   const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
 
-  // 🔥 LOCAL STATE DIRECT APTOS (Bypasses React Adapter Issues) 🔥
+  // 🔥 DIRECT WINDOW.APTOS LOGIC (No Adapter Bugs) 🔥
   const [account, setAccount] = useState<any>(null);
   const [connected, setConnected] = useState(false);
 
@@ -392,12 +401,13 @@ export default function App() {
         setConnected(true);
         showToast("Petra Wallet connected successfully!", "success");
       } catch (error) {
-        console.error(error);
-        showToast("Connection failed or rejected.", "error");
+        console.error("Connect Error:", error);
+        // ⚠️ Had message kaytla3 ila l-user sed l-popup wla l-wallet fiha code mzl maktbouch
+        showToast("Connection rejected. Please open Petra extension manually and unlock it!", "error");
       }
     } else {
       window.open("https://petra.app/", "_blank");
-      showToast("Please install Petra Wallet!", "error");
+      showToast("Please install Petra Wallet extension!", "error");
     }
   };
 
@@ -452,7 +462,7 @@ export default function App() {
       
     } catch (error) { 
       console.error("Buy Error:", error);
-      showToast("Transaction rejected or failed.", "error"); 
+      showToast("Transaction rejected. Please check your Petra wallet!", "error"); 
     }
   };
 
