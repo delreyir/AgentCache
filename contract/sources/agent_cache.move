@@ -5,59 +5,50 @@ module agent_cache::marketplace {
     use aptos_framework::aptos_coin::AptosCoin;
     use aptos_std::table::{Self, Table};
 
-    /// Errors
+    // Errors
     const E_NOT_INITIALIZED: u64 = 1;
-    const E_ALREADY_INITIALIZED: u64 = 2;
 
-    /// The main marketplace struct stored under the admin's account
+    // L-Marketplace d bsse7
     struct MarketPlace has key {
-        // Table storing access rights: Buyer Address -> (Blob CID -> boolean)
+        // Table kat-sjel: Buyer Address -> (Blob CID -> boolean)
         access_records: Table<address, Table<String, bool>>,
     }
 
-    /// Initialize the marketplace (called once upon deployment)
-    public entry fun init_module(admin: &signer) {
-        if (exists<MarketPlace>(signer::address_of(admin))) {
-            abort E_ALREADY_INITIALIZED;
-        };
-
+    // HADI HIYA LI 9ADDINA: Khassha t-koun ghir 'fun' (private), machi 'public entry'
+    fun init_module(admin: &signer) {
         move_to(admin, MarketPlace {
             access_records: table::new(),
         });
     }
 
-    /// Buy access to a specific dataset/blob
+    // L-khalass dyal l-Access
     public entry fun buy_access(
         buyer: &signer,
         seller: address,
         blob_cid: String,
         price_amount: u64
     ) acquires MarketPlace {
-        if (!exists<MarketPlace>(@agent_cache)) {
-            abort E_NOT_INITIALIZED;
-        };
-
         let buyer_addr = signer::address_of(buyer);
         let marketplace = borrow_global_mut<MarketPlace>(@agent_cache);
 
-        // 1. Transfer funds from buyer to seller (micro-transaction)
+        // 1. N-siftou l-flouss mn l-chari l-katib (Agent A)
         let payment = coin::withdraw<AptosCoin>(buyer, price_amount);
         coin::deposit<AptosCoin>(seller, payment);
 
-        // 2. Grant access in the state table
+        // 2. N-3tiwh l-Access f l-Blockchain
         if (!table::contains(&marketplace.access_records, buyer_addr)) {
+            // ZEDNA '&mut' HNA BACH Y9BEL L-MODIFICATION
             table::add(&mut marketplace.access_records, buyer_addr, table::new<String, bool>());
         };
-
+        
         let user_access = table::borrow_mut(&mut marketplace.access_records, buyer_addr);
-
-        // Ensure we do not overwrite if already bought
+        
         if (!table::contains(user_access, blob_cid)) {
             table::add(user_access, blob_cid, true);
         }
     }
 
-    /// Read-only function called by Shelby RPC to verify if a user paid
+    // Shelby kat-st3mel had l-function bach t-verifi wach l-user khlles d-bsse7
     #[view]
     public fun check_access(buyer: address, blob_cid: String): bool acquires MarketPlace {
         if (!exists<MarketPlace>(@agent_cache)) {
