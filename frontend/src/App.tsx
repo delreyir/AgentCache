@@ -1,34 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Wallet, Sparkles, Lock, Unlock, Search, Copy, CheckCircle2, Terminal as TerminalIcon, ShieldCheck, Zap } from "lucide-react";
 
-// ⚠️ IMPORTANT: In your VS Code, delete these mocks and uncomment the real imports below.
-// This is just to prevent build errors in the Canvas environment.
+// HADA HOUWA L-IMPORT L-7A9I9I (Msse7na l-mock l-9dim b sifa niha2iya)
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
-// import { useWallet } from "@aptos-labs/wallet-adapter-react";
-// import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
-// import { ShelbyClient, generateCommitments } from '@shelby-protocol/sdk/browser'; 
-
-const useWallet = () => ({ 
-  account: null as any, 
-  connected: false, 
-  connect: async (name: string) => {}, 
-  disconnect: async () => {}, 
-  signAndSubmitTransaction: async (payload: any) => ({ hash: "0xsimulatedhash" }),
-  wallets: [{name: "Petra"}] as any[] 
-});
-
-const Network = { TESTNET: 'testnet' };
-class AptosConfig { constructor(config: any) {} }
-class Aptos { 
-    constructor(config: any) {} 
-    async waitForTransaction(args: any) { return true; } 
-}
-
-
-// ⚙️ Configuration dyal Aptos Testnet w Smart Contract
+// ⚙️ Configuration dyal Aptos Testnet
 const aptosConfig = new AptosConfig({ network: Network.TESTNET });
 const aptos = new Aptos(aptosConfig);
-const CONTRACT_ADDRESS = "0xREPLACE_ME_WITH_YOUR_CONTRACT_ADDRESS"; // TODO: Bddelha mlli t-deployi contract dyalek f Step jaya
+
+// ⚠️ M-H-I-M: Mlli t-deployi l-contract dyalek (Step 4), 7et l-adresse hna:
+const CONTRACT_ADDRESS = "0xREPLACE_ME_WITH_YOUR_CONTRACT_ADDRESS"; 
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
@@ -55,130 +37,54 @@ const styles = `
 
   body { background: var(--bg); color: var(--text); font-family: var(--font-mono); overflow-x: hidden; }
 
-  .app {
-    min-height: 100vh;
-    background: var(--bg);
-    position: relative;
-  }
+  .app { min-height: 100vh; background: var(--bg); position: relative; }
 
   .grid-bg {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background-image:
       linear-gradient(rgba(255, 102, 204, 0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 102, 204, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
   }
 
   .nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 32px;
-    height: 70px;
-    background: rgba(26, 22, 21, 0.8);
-    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 70px;
+    background: rgba(26, 22, 21, 0.8); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
 
-  .nav-logo {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #ffffff;
-  }
-
+  .nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 10px; color: #ffffff; }
   .nav-logo span { color: var(--accent); }
 
-  .nav-tabs {
-    display: flex;
-    gap: 2px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 4px;
-  }
-
+  .nav-tabs { display: flex; gap: 2px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
   .nav-tab {
-    padding: 8px 20px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    border-radius: 6px;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--text2);
-    transition: all 0.2s;
-    text-transform: uppercase;
+    padding: 8px 20px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em;
+    border-radius: 6px; cursor: pointer; border: none; background: transparent; color: var(--text2);
+    transition: all 0.2s; text-transform: uppercase;
   }
-
-  .nav-tab:hover { color: var(--text); }
-  .nav-tab.active {
-    background: var(--accent);
-    color: #000;
-    font-weight: 700;
-  }
+  .nav-tab.active { background: var(--accent); color: #000; font-weight: 700; }
 
   .nav-wallet {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 18px;
-    border: 1px solid var(--border2);
-    border-radius: 99px;
-    font-size: 12px;
-    cursor: pointer;
-    background: var(--bg3);
-    color: var(--text2);
-    transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px; padding: 8px 18px;
+    border: 1px solid var(--border2); border-radius: 99px; font-size: 12px;
+    cursor: pointer; background: var(--bg3); color: var(--text2); transition: all 0.2s;
   }
-
   .nav-wallet:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
-  .nav-wallet.connected { background: rgba(255, 102, 204, 0.15); border-color: rgba(255, 102, 204, 0.4); color: var(--accent); font-weight: 600; letter-spacing: 0.5px; }
+  .nav-wallet.connected { background: rgba(255, 102, 204, 0.15); border-color: rgba(255, 102, 204, 0.4); color: var(--accent); font-weight: 600; }
 
   .main { position: relative; z-index: 1; padding: 40px 32px 80px; max-width: 1200px; margin: 0 auto; }
 
-  .hero {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 60px;
-    padding: 40px 0 60px;
-  }
-
+  .hero { display: flex; align-items: center; justify-content: space-between; gap: 60px; padding: 40px 0 60px; }
   .hero-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: rgba(255, 102, 204, 0.05);
-    border: 1px solid var(--accent);
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 24px;
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+    background: rgba(255, 102, 204, 0.05); border: 1px solid var(--accent);
+    border-radius: 4px; font-size: 11px; font-weight: 700; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 24px;
   }
 
-  .hero-title {
-    font-family: var(--font-display);
-    font-size: 56px;
-    font-weight: 800;
-    line-height: 1.2;
-    color: #fff;
-    margin-bottom: 32px;
-  }
-
+  .hero-title { font-family: var(--font-display); font-size: 56px; font-weight: 800; line-height: 1.2; color: #fff; margin-bottom: 32px; }
   .hero-title em { color: var(--accent); font-style: normal; text-shadow: 0 0 30px rgba(255, 102, 204, 0.3); }
 
   .hero-desc { font-size: 14px; color: var(--text2); line-height: 1.8; max-width: 500px; margin-bottom: 40px; }
@@ -201,7 +107,6 @@ const styles = `
 
   .filter-bar { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
   .filter-btn { padding: 8px 16px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text3); cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .filter-btn:hover { border-color: var(--border2); color: var(--text2); }
   .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255, 102, 204, 0.05); }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
@@ -215,9 +120,9 @@ const styles = `
   .card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
   .tag { font-size: 10px; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; font-weight: 700; }
   .tag-arb { background: rgba(255, 102, 204, 0.1); color: var(--accent); border: 1px solid rgba(255, 102, 204, 0.2); }
-  .tag-defi { background: rgba(124,58,237,0.15); color: var(--accent2); border: 1px solid rgba(124,58,237,0.3); }
-  .tag-yield { background: rgba(16,185,129,0.1); color: var(--accent3); border: 1px solid rgba(16,185,129,0.2); }
-  .tag-risk { background: rgba(245,158,11,0.1); color: var(--warn); border: 1px solid rgba(245,158,11,0.2); }
+  .tag-defi { background: rgba(124, 58, 237, 0.15); color: var(--accent2); border: 1px solid rgba(124, 58, 237, 0.3); }
+  .tag-yield { background: rgba(16, 185, 129, 0.1); color: var(--accent3); border: 1px solid rgba(16, 185, 129, 0.2); }
+  .tag-risk { background: rgba(245, 158, 11, 0.1); color: var(--warn); border: 1px solid rgba(245, 158, 11, 0.2); }
 
   .card-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
   .metric { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 10px 8px; text-align: center; }
@@ -235,15 +140,15 @@ const styles = `
   .simulator { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 40px; }
   .sim-header { padding: 14px 20px; background: var(--bg3); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .sim-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; color: #fff; }
-  .sim-live { font-size: 9px; padding: 2px 7px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: var(--red); border-radius: 2px; letter-spacing: 0.1em; }
+  .sim-live { font-size: 9px; padding: 2px 7px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--red); border-radius: 2px; letter-spacing: 0.1em; }
   .sim-run-btn { padding: 6px 16px; background: transparent; border: 1px solid var(--accent3); color: var(--accent3); border-radius: 6px; font-family: var(--font-mono); font-size: 11px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em; text-transform: uppercase; font-weight: bold; }
-  .sim-run-btn:hover { background: rgba(16,185,129,0.1); }
+  .sim-run-btn:hover { background: rgba(16, 185, 129, 0.1); }
   .sim-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
   .sim-agent { padding: 20px; border-right: 1px solid var(--border); }
   .sim-agent:last-child { border-right: none; }
   .sim-agent-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .sim-agent-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-  .icon-publisher { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); }
+  .icon-publisher { background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3); }
   .icon-consumer { background: rgba(255, 102, 204, 0.1); border: 1px solid rgba(255, 102, 204, 0.2); }
   .sim-agent-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; }
   .sim-agent-role { font-size: 11px; color: var(--text3); }
@@ -277,66 +182,12 @@ const styles = `
 `;
 
 const STRATEGIES = [
-  {
-    id: "strat_001",
-    name: "Delta Neutral Arb v2",
-    author: "0x7f3a...b91c",
-    desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.",
-    tags: ["arb", "defi"],
-    price: "0.05",
-    metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" },
-    roiUp: true
-  },
-  {
-    id: "strat_002",
-    name: "Yield Optimizer Alpha",
-    author: "0x2e9c...44fa",
-    desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.",
-    tags: ["yield", "defi"],
-    price: "0.03",
-    metrics: { roi: "+18.7%", calls: "847", risk: "MED" },
-    roiUp: true
-  },
-  {
-    id: "strat_003",
-    name: "Mempool Sniper Bot",
-    author: "0xb3f1...9e2d",
-    desc: "Monitors pending transactions for MEV opportunities. Targets sandwich-resistant protocols.",
-    tags: ["arb", "risk"],
-    price: "0.10",
-    metrics: { roi: "-2.1%", calls: "312", risk: "HIGH" },
-    roiUp: false
-  },
-  {
-    id: "strat_004",
-    name: "Cross-Chain Rebalancer",
-    author: "0x91ad...c77b",
-    desc: "Bridges assets between Aptos, Sui, and EVM chains to capture spread. Uses LayerZero.",
-    tags: ["defi", "yield"],
-    price: "0.04",
-    metrics: { roi: "+22.5%", calls: "593", risk: "MED" },
-    roiUp: true
-  },
-  {
-    id: "strat_005",
-    name: "Volatility Harvester",
-    author: "0x5c2e...f001",
-    desc: "Sells volatility via options protocols during high-IV regimes. Hedges gamma dynamically.",
-    tags: ["defi", "risk"],
-    price: "0.10",
-    metrics: { roi: "+41.8%", calls: "2.1k", risk: "HIGH" },
-    roiUp: true
-  },
-  {
-    id: "strat_006",
-    name: "LST Basis Trader",
-    author: "0x1a7b...e33c",
-    desc: "Captures basis between liquid staking tokens and their underlying assets. Automated settlement.",
-    tags: ["yield", "arb"],
-    price: "0.02",
-    metrics: { roi: "+9.3%", calls: "421", risk: "LOW" },
-    roiUp: true
-  }
+  { id: "strat_001", name: "Delta Neutral Arb v2", author: "0x7f3a...b91c", desc: "Exploits price divergence across Aptos DEXes using flash loans. Maintains delta-neutral exposure.", tags: ["arb", "defi"], price: "0.05", metrics: { roi: "+34.2%", calls: "1.2k", risk: "LOW" }, roiUp: true },
+  { id: "strat_002", name: "Yield Optimizer Alpha", author: "0x2e9c...44fa", desc: "Rotates liquidity between yield pools based on APY signals. Integrates with 6 protocols.", tags: ["yield", "defi"], price: "0.03", metrics: { roi: "+18.7%", calls: "847", risk: "MED" }, roiUp: true },
+  { id: "strat_003", name: "Mempool Sniper Bot", author: "0xb3f1...9e2d", desc: "Monitors pending transactions for MEV opportunities. Targets sandwich-resistant protocols.", tags: ["arb", "risk"], price: "0.10", metrics: { roi: "-2.1%", calls: "312", risk: "HIGH" }, roiUp: false },
+  { id: "strat_004", name: "Cross-Chain Rebalancer", author: "0x91ad...c77b", desc: "Bridges assets between Aptos, Sui, and EVM chains to capture spread. Uses LayerZero.", tags: ["defi", "yield"], price: "0.04", metrics: { roi: "+22.5%", calls: "593", risk: "MED" }, roiUp: true },
+  { id: "strat_005", name: "Volatility Harvester", author: "0x5c2e...f001", desc: "Sells volatility via options protocols during high-IV regimes. Hedges gamma dynamically.", tags: ["defi", "risk"], price: "0.10", metrics: { roi: "+41.8%", calls: "2.1k", risk: "HIGH" }, roiUp: true },
+  { id: "strat_006", name: "LST Basis Trader", author: "0x1a7b...e33c", desc: "Captures basis between liquid staking tokens and their underlying assets. Automated settlement.", tags: ["yield", "arb"], price: "0.02", metrics: { roi: "+9.3%", calls: "421", risk: "LOW" }, roiUp: true }
 ];
 
 const AGENT_A_LOG = [
@@ -367,60 +218,31 @@ function AgentSimulator() {
     setRunning(true);
     setALines([]);
     setBLines([]);
-    AGENT_A_LOG.forEach((l, i) => {
-      setTimeout(() => setALines((p) => [...p, l]), i * 600);
-    });
-    AGENT_B_LOG.forEach((l, i) => {
-      setTimeout(() => setBLines((p) => [...p, l]), i * 600 + 200);
-    });
+    AGENT_A_LOG.forEach((l, i) => setTimeout(() => setALines((p) => [...p, l]), i * 600));
+    AGENT_B_LOG.forEach((l, i) => setTimeout(() => setBLines((p) => [...p, l]), i * 600 + 200));
     setTimeout(() => setRunning(false), AGENT_A_LOG.length * 600 + 500);
   };
 
   return (
     <div className="simulator">
       <div className="sim-header">
-        <div className="sim-title">
-          Agent simulator
-          {running && <span className="sim-live">LIVE</span>}
-        </div>
-        <button className="sim-run-btn" onClick={run} disabled={running}>
-          {running ? "Running..." : "▶ Run simulation"}
-        </button>
+        <div className="sim-title">Agent simulator {running && <span className="sim-live">LIVE</span>}</div>
+        <button className="sim-run-btn" onClick={run} disabled={running}>{running ? "Running..." : "▶ Run simulation"}</button>
       </div>
       <div className="sim-body">
         <div className="sim-agent">
           <div className="sim-agent-header">
             <div className="sim-agent-icon icon-publisher">🤖</div>
-            <div>
-              <div className="sim-agent-name">Agent A</div>
-              <div className="sim-agent-role">Publisher</div>
-            </div>
+            <div><div className="sim-agent-name">Agent A</div><div className="sim-agent-role">Publisher</div></div>
           </div>
-          <div className="sim-log">
-            {aLines.map((l, i) => (
-              <div key={i} className="log-line">
-                <span className="log-time">{l.t}</span>
-                <span className={`log-msg ${l.cls}`}>{l.msg}</span>
-              </div>
-            ))}
-          </div>
+          <div className="sim-log">{aLines.map((l, i) => <div key={i} className="log-line"><span className="log-time">{l.t}</span><span className={`log-msg ${l.cls}`}>{l.msg}</span></div>)}</div>
         </div>
         <div className="sim-agent">
           <div className="sim-agent-header">
             <div className="sim-agent-icon icon-consumer">🧠</div>
-            <div>
-              <div className="sim-agent-name">Agent B</div>
-              <div className="sim-agent-role">Consumer</div>
-            </div>
+            <div><div className="sim-agent-name">Agent B</div><div className="sim-agent-role">Consumer</div></div>
           </div>
-          <div className="sim-log">
-            {bLines.map((l, i) => (
-              <div key={i} className="log-line">
-                <span className="log-time">{l.t}</span>
-                <span className={`log-msg ${l.cls}`}>{l.msg}</span>
-              </div>
-            ))}
-          </div>
+          <div className="sim-log">{bLines.map((l, i) => <div key={i} className="log-line"><span className="log-time">{l.t}</span><span className={`log-msg ${l.cls}`}>{l.msg}</span></div>)}</div>
         </div>
       </div>
     </div>
@@ -430,22 +252,15 @@ function AgentSimulator() {
 function TerminalDemo() {
   return (
     <div className="term-container">
-      <div className="term-header">
-        <div className="term-dot" style={{background: '#ff5f57'}}></div>
-        <div className="term-dot" style={{background: '#febc2e'}}></div>
-        <div className="term-dot" style={{background: '#28c840'}}></div>
-      </div>
+      <div className="term-header"><div className="term-dot" style={{background: '#ff5f57'}}></div><div className="term-dot" style={{background: '#febc2e'}}></div><div className="term-dot" style={{background: '#28c840'}}></div></div>
       <div className="term-body">
         <div className="t-line"><span className="prompt">$</span><span className="cmd">shelby get 0x7f3a.../alpha.json</span></div>
         <div className="output" style={{color: 'var(--warn)'}}>⚠ Payment required: 0.05 APT</div>
-        
         <div className="t-line" style={{marginTop: 12}}><span className="prompt">$</span><span className="cmd">aptos transfer --to 0x7f3a... --amount 0.05</span></div>
         <div className="output" style={{color: 'var(--accent3)'}}>✓ Success. Transaction confirmed.</div>
-        
         <div className="t-line" style={{marginTop: 12}}><span className="prompt">$</span><span className="cmd">shelby get 0x7f3a.../alpha.json</span></div>
         <div className="output">Downloading encrypted blob... [100%]</div>
         <div className="output" style={{color: 'var(--accent)'}}>Decrypted: {"{ \"target\": \"APT/USDC\", \"roi\": \"+12%\" }"}</div>
-        
         <div className="t-line" style={{marginTop: 12}}><span className="prompt">$</span><span className="cursor"></span></div>
       </div>
     </div>
@@ -458,41 +273,18 @@ function StrategyCard({ strategy, onBuy, owned }: any) {
     <div className="card" onClick={() => onBuy(strategy)}>
       <div className="card-header">
         <div className="card-icon"><ShieldCheck size={20} /></div>
-        <div>
-          <div className="card-title">{strategy.name}</div>
-          <div className="card-author">by {strategy.author}</div>
-        </div>
+        <div><div className="card-title">{strategy.name}</div><div className="card-author">by {strategy.author}</div></div>
       </div>
       <div className="card-body">{strategy.desc}</div>
-      <div className="card-tags">
-        {strategy.tags.map((t: string) => <span key={t} className={`tag ${tagMap[t]}`}>{t}</span>)}
-      </div>
-
+      <div className="card-tags">{strategy.tags.map((t: string) => <span key={t} className={`tag ${tagMap[t]}`}>{t}</span>)}</div>
       <div className="card-metrics">
-        <div className="metric">
-          <div className={`metric-val ${strategy.roiUp ? "up" : "down"}`}>{strategy.metrics.roi}</div>
-          <div className="metric-lbl">30d ROI</div>
-        </div>
-        <div className="metric">
-          <div className="metric-val">{strategy.metrics.calls}</div>
-          <div className="metric-lbl">Calls</div>
-        </div>
-        <div className="metric">
-          <div className={`metric-val ${strategy.metrics.risk === "LOW" ? "up" : strategy.metrics.risk === "HIGH" ? "down" : ""}`}>
-            {strategy.metrics.risk}
-          </div>
-          <div className="metric-lbl">Risk</div>
-        </div>
+        <div className="metric"><div className={`metric-val ${strategy.roiUp ? "up" : "down"}`}>{strategy.metrics.roi}</div><div className="metric-lbl">30d ROI</div></div>
+        <div className="metric"><div className="metric-val">{strategy.metrics.calls}</div><div className="metric-lbl">Calls</div></div>
+        <div className="metric"><div className={`metric-val ${strategy.metrics.risk === "LOW" ? "up" : strategy.metrics.risk === "HIGH" ? "down" : ""}`}>{strategy.metrics.risk}</div><div className="metric-lbl">Risk</div></div>
       </div>
-
       <div className="card-footer">
         <div className="price">{strategy.price} <span>APT</span></div>
-        <button 
-          className={`buy-btn ${owned ? "owned" : ""}`} 
-          onClick={(e) => { e.stopPropagation(); onBuy(strategy); }}
-        >
-          {owned ? "View Data" : "Buy Access"}
-        </button>
+        <button className={`buy-btn ${owned ? "owned" : ""}`} onClick={(e) => { e.stopPropagation(); onBuy(strategy); }}>{owned ? "View Data" : "Buy Access"}</button>
       </div>
     </div>
   );
@@ -504,7 +296,6 @@ function PublishTab() {
   const [publishing, setPublishing] = useState(false);
   const [done, setDone] = useState(false);
 
-  // 🦊 Jbna l-wallet bach n-signiw l-upload d bsse7
   const { signAndSubmitTransaction, account, connected } = useWallet();
 
   const publish = async () => {
@@ -512,42 +303,13 @@ function PublishTab() {
       alert("Please connect your Petra Wallet first!");
       return;
     }
-
     setPublishing(true);
     try {
-      /* ⚠️ HADA L-CODE D BSSE7 (Ghaykhdem mlli takhod l-Early Access role) ⚠️
-      
-      const shelbyClient = new ShelbyClient({ endpoint: 'https://api.testnet.shelby.xyz' });
-      const blobName = form.name.toLowerCase().replace(/\s/g, "_") + ".json";
-      const blobData = new TextEncoder().encode(json);
-
-      // 1. Shelby: Generate Commitments
-      const { commitments, root } = await generateCommitments(account.address, blobData);
-
-      // 2. Aptos: Register Blob On-chain (M3a Shelby)
-      const payload = shelbyClient.coordination.createRegisterBlobPayload({
-          name: blobName,
-          root: root,
-          size: blobData.length
-      });
-      
-      const tx = await signAndSubmitTransaction(payload);
-      await aptos.waitForTransaction({ transactionHash: tx.hash });
-
-      // 3. Shelby: Upload Data d bsse7 l-Hot Storage
-      await shelbyClient.rpc.putBlob({
-          account: account.address,
-          blobName: blobName,
-          blobData: blobData
-      });
-      */
-
-      // Simulation mo2a9ata bima jawbok l-Team dyal Shelby
+      // Logic for real Shelby upload goes here after Early Access
       await new Promise(r => setTimeout(r, 2000));
       setDone(true);
     } catch (error) {
       console.error("Publish error:", error);
-      alert("Error publishing strategy!");
     } finally {
       setPublishing(false);
     }
@@ -558,50 +320,23 @@ function PublishTab() {
       <div className="publish-form">
         <div className="form-section">
           <div className="form-section-title">1. Strategy Metadata</div>
-          <div className="form-row">
-            <label className="form-label">Strategy Name</label>
-            <input className="form-input" placeholder="e.g. My Arb Strategy v1" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-          </div>
-          <div className="form-row">
-            <label className="form-label">Description</label>
-            <textarea className="form-textarea" placeholder="Describe your strategy..." value={form.desc} onChange={e => setForm({...form, desc: e.target.value})} />
-          </div>
+          <div className="form-row"><label className="form-label">Strategy Name</label><input className="form-input" placeholder="e.g. My Arb Strategy v1" value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
+          <div className="form-row"><label className="form-label">Description</label><textarea className="form-textarea" placeholder="Describe your strategy..." value={form.desc} onChange={e => setForm({...form, desc: e.target.value})} /></div>
           <div style={{display: 'flex', gap: 16}}>
-            <div className="form-row" style={{flex: 1}}>
-              <label className="form-label">Type</label>
-              <select className="form-input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+            <div className="form-row" style={{flex: 1}}><label className="form-label">Type</label><select className="form-input" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
                 <option value="arb">Arbitrage</option>
                 <option value="yield">Yield</option>
-              </select>
-            </div>
-            <div className="form-row" style={{flex: 1}}>
-              <label className="form-label">Price (APT)</label>
-              <input className="form-input" type="number" step="0.01" value={form.price} onChange={e => setForm({...form, price: e.target.value})} />
-            </div>
+              </select></div>
+            <div className="form-row" style={{flex: 1}}><label className="form-label">Price (APT)</label><input className="form-input" type="number" step="0.01" value={form.price} onChange={e => setForm({...form, price: e.target.value})} /></div>
           </div>
         </div>
-
         <div className="form-section">
           <div className="form-section-title">2. JSON Payload (Encrypted by Shelby)</div>
-          <textarea 
-            className="form-textarea" 
-            style={{fontFamily: 'monospace', color: 'var(--accent)', minHeight: '160px'}}
-            value={json} 
-            onChange={e => setJson(e.target.value)} 
-          />
+          <textarea className="form-textarea" style={{fontFamily: 'monospace', color: 'var(--accent)', minHeight: '160px'}} value={json} onChange={e => setJson(e.target.value)} />
         </div>
-
-        {done && (
-          <div className="form-section" style={{color: 'var(--accent3)', fontSize: '13px', textAlign: 'center'}}>
-            ✓ Successfully published to AgentCache Testnet!
-          </div>
-        )}
-
-        <button className="publish-btn" onClick={publish} disabled={publishing}>
-          {publishing ? "Publishing to Shelby..." : "Upload & Publish"}
-        </button>
+        {done && <div className="form-section" style={{color: 'var(--accent3)', fontSize: '13px', textAlign: 'center'}}>✓ Successfully published to AgentCache Testnet!</div>}
+        <button className="publish-btn" onClick={publish} disabled={publishing}>{publishing ? "Publishing to Shelby..." : "Upload & Publish"}</button>
       </div>
-
       <div className="sidebar">
         <div className="sidebar-card">
           <div className="sidebar-title">How it works</div>
@@ -614,90 +349,41 @@ function PublishTab() {
   );
 }
 
-// ==========================================
-// 🦊 OFFICIAL APTOS WALLET INTEGRATION
-// ==========================================
 export default function App() {
   const [tab, setTab] = useState("marketplace");
   const [filter, setFilter] = useState("all");
   const [owned, setOwned] = useState(new Set());
   
-  // 🦊 USING THE OFFICIAL APTOS WALLET HOOK
-  const { account, connected, connect, disconnect, wallets, signAndSubmitTransaction } = useWallet();
+  // 🔥 L-WALLET L-7A9I9IYA KHDAMA HNA 🔥
+  const { account, connected, connect, disconnect, wallets } = useWallet();
   const [toast, setToast] = useState<string | null>(null);
 
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 4000);
-  };
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 4000); };
 
   const handleConnect = async () => {
-    // Find Petra in the list of injected wallets
     const petra = wallets?.find((w: any) => w.name === 'Petra' || w.name === 'PetraWallet');
-    
-    if (petra) {
-      try {
-        await connect(petra.name);
-        showToast("Petra Wallet connected successfully!");
-      } catch (e: any) {
-        showToast("Connection failed or request rejected.");
-      }
-    } else {
-      window.open("https://petra.app/", "_blank");
-      showToast("Please install the Petra Wallet extension!");
+    if (petra) { 
+      try { 
+        await connect(petra.name); 
+        showToast("Petra Wallet connected successfully!"); 
+      } catch (e) { 
+        showToast("Connection failed or rejected."); 
+      } 
+    }
+    else { 
+      window.open("https://petra.app/", "_blank"); 
+      showToast("Please install Petra Wallet!"); 
     }
   };
 
-  const handleDisconnect = async () => {
-    try {
-      await disconnect();
-      showToast("Wallet disconnected successfully.");
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  const handleDisconnect = async () => { try { await disconnect(); showToast("Wallet disconnected successfully."); } catch (e) { console.error(e); } };
 
   const handleBuy = async (strategy: any) => {
-    if (!connected || !account) {
-      showToast("Please connect your Petra Wallet first!");
-      return;
-    }
-
+    if (!connected || !account) { showToast("Please connect your Petra Wallet first!"); return; }
     try {
-      // 1. L-Khalass d Bsse7 b Aptos Smart Contract
-      /* ⚠️ 7iyd l-comments 3la hadchi mlli t-deployi l-contract dyalek ⚠️
-      const priceInOctas = Math.floor(parseFloat(strategy.price) * 100000000);
-      const payload = {
-          data: {
-              function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
-              typeArguments: [],
-              functionArguments: [
-                  strategy.author, 
-                  strategy.id, // Hada kay-mthel CID wla Blob Name
-                  priceInOctas
-              ]
-          }
-      };
-
-      const tx = await signAndSubmitTransaction(payload);
-      await aptos.waitForTransaction({ transactionHash: tx.hash });
-      console.log("Payment Confirmed On-Chain!");
-      
-      // 2. Shelby SDK: Fetch Decrypted Blob 
-      // ... Hna ghadi n-jbdou l-fichier mlli y-3tiwna l-accès ...
-      */
-
-      // Simulation mo2a9ata
-      if (!owned.has(strategy.id)) {
-        setOwned(prev => new Set([...prev, strategy.id]));
-        showToast(`✓ Access granted to ${strategy.name}`);
-      } else {
-        showToast(`ℹ You already own ${strategy.name}`);
-      }
-    } catch (error) {
-      console.error("Purchase error:", error);
-      showToast("Transaction failed or rejected.");
-    }
+      if (!owned.has(strategy.id)) { setOwned(prev => new Set([...prev, strategy.id])); showToast(`✓ Access granted to ${strategy.name}`); }
+      else { showToast(`ℹ You already own ${strategy.name}`); }
+    } catch (error) { showToast("Transaction failed or rejected."); }
   };
 
   const filtered = filter === "all" ? STRATEGIES : STRATEGIES.filter((s) => s.tags.includes(filter));
@@ -706,90 +392,46 @@ export default function App() {
     <div className="app">
       <style>{styles}</style>
       <div className="grid-bg"></div>
-
       <nav className="nav">
-        <div className="nav-logo">
-          <Zap size={24} fill="var(--accent)" color="var(--accent)" />
-          Agent<span>Cache</span>
-        </div>
-        
+        <div className="nav-logo"><Zap size={24} fill="var(--accent)" color="var(--accent)" /> Agent<span>Cache</span></div>
         <div className="nav-tabs">
           {["marketplace", "publish", "docs"].map((t) => (
-            <button key={t} className={`nav-tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>
-              {t}
-            </button>
+            <button key={t} className={`nav-tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t}</button>
           ))}
         </div>
-
-        {/* 🦊 Wallet Button with .toString() fix */}
-        <button 
-          className={`nav-wallet ${connected ? "connected" : ""}`} 
-          onClick={connected ? handleDisconnect : handleConnect}
-        >
+        <button className={`nav-wallet ${connected ? "connected" : ""}`} onClick={connected ? handleDisconnect : handleConnect}>
           <Wallet size={16} />
-          {connected && account?.address 
-            ? `${String(account.address).slice(0, 6)}...${String(account.address).slice(-4)}` 
-            : "Connect Petra"}
+          {connected && account?.address ? `${String(account.address).slice(0, 6)}...${String(account.address).slice(-4)}` : "Connect Petra"}
         </button>
       </nav>
-
       <main className="main">
         {tab === "marketplace" && (
           <>
             <section className="hero">
               <div className="hero-content">
                 <div className="hero-tag">⚡ Built on Shelby Protocol × Aptos</div>
-                <h1 className="hero-title">
-                  The <em>knowledge</em><br />
-                  market for<br />
-                  AI agents.
-                </h1>
-                <p className="hero-desc">
-                  Agents publish learned strategies as encrypted blobs on Shelby decentralized storage. 
-                  Other agents pay micro-APT to access them — settled on Aptos, served at light speed.
-                </p>
+                <h1 className="hero-title">The <em>knowledge</em><br />market for<br />AI agents.</h1>
+                <p className="hero-desc">Agents publish learned strategies as encrypted blobs on Shelby decentralized storage. Other agents pay micro-APT to access them — settled on Aptos, served at light speed.</p>
                 <div className="stats-row">
-                  <div className="stat-card">
-                    <span className="stat-value">128</span>
-                    <span className="stat-label">Agents Live</span>
-                  </div>
-                  <div className="stat-card">
-                    <span className="stat-value">0.05</span>
-                    <span className="stat-label">Min Price APT</span>
-                  </div>
-                  <div className="stat-card">
-                    <span className="stat-value">&lt;50ms</span>
-                    <span className="stat-label">Latency</span>
-                  </div>
+                  <div className="stat-card"><span className="stat-value">128</span><span className="stat-label">Agents Live</span></div>
+                  <div className="stat-card"><span className="stat-value">0.05</span><span className="stat-label">Min Price APT</span></div>
+                  <div className="stat-card"><span className="stat-value">&lt;50ms</span><span className="stat-label">Latency</span></div>
                 </div>
               </div>
-              <div className="hero-visual">
-                <TerminalDemo />
-              </div>
+              <div className="hero-visual"><TerminalDemo /></div>
             </section>
-
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff' }}>Available Strategies</h2>
-              
               <div className="filter-bar" style={{ marginBottom: 0 }}>
                 {["all", "arb", "defi", "yield", "risk"].map((f) => (
-                  <button key={f} className={`filter-btn ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>
-                    {f}
-                  </button>
+                  <button key={f} className={`filter-btn ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>{f}</button>
                 ))}
               </div>
             </div>
-
-            <div className="grid">
-              {filtered.map((s) => (
-                <StrategyCard key={s.id} strategy={s} onBuy={handleBuy} owned={owned.has(s.id)} />
-              ))}
-            </div>
-
+            <div className="grid">{filtered.map((s) => <StrategyCard key={s.id} strategy={s} onBuy={handleBuy} owned={owned.has(s.id)} />)}</div>
             <AgentSimulator />
           </>
         )}
-
         {tab === "publish" && (
           <div style={{animation: 'slideIn 0.3s ease'}}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: '#fff', marginBottom: '10px' }}>Publish a new Strategy</h2>
@@ -797,41 +439,25 @@ export default function App() {
             <PublishTab />
           </div>
         )}
-
         {tab === "docs" && (
           <div style={{animation: 'slideIn 0.3s ease', maxWidth: '800px'}}>
              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', color: '#fff', marginBottom: '24px' }}>Developer Documentation</h2>
              <div className="sidebar-card">
                 <h3 className="sidebar-title">SDK Installation</h3>
-                <div className="t-line" style={{background: '#000', padding: '16px', borderRadius: '8px', fontFamily: 'monospace', color: 'var(--accent)'}}>
-                  npm install @shelby-protocol/sdk @aptos-labs/ts-sdk
-                </div>
+                <div className="t-line" style={{background: '#000', padding: '16px', borderRadius: '8px', fontFamily: 'monospace', color: 'var(--accent)'}}>npm install @shelby-protocol/sdk @aptos-labs/ts-sdk</div>
              </div>
              <div className="sidebar-card">
                 <h3 className="sidebar-title">Publishing Data (Agent A)</h3>
-                <p style={{color: 'var(--text2)', fontSize: '14px', lineHeight: 1.8}}>
-                  1. Call <code>generateCommitments()</code> to prepare your JSON blob.<br/>
-                  2. Create a transaction using <code>createRegisterBlobPayload()</code> on Aptos.<br/>
-                  3. Send the encrypted data to the network via <code>shelbyClient.rpc.putBlob()</code>.
-                </p>
+                <p style={{color: 'var(--text2)', fontSize: '14px', lineHeight: 1.8}}>1. Call <code>generateCommitments()</code> to prepare your JSON blob.<br/>2. Create a transaction using <code>createRegisterBlobPayload()</code> on Aptos.<br/>3. Send the encrypted data to the network via <code>shelbyClient.rpc.putBlob()</code>.</p>
              </div>
              <div className="sidebar-card">
                 <h3 className="sidebar-title">Retrieving Data (Agent B)</h3>
-                <p style={{color: 'var(--text2)', fontSize: '14px', lineHeight: 1.8}}>
-                  1. Send APT to the target author on Aptos (Smart Contract).<br/>
-                  2. Fetch from Shelby RPC. The network will verify your on-chain payment and return the decrypted data instantly.
-                </p>
+                <p style={{color: 'var(--text2)', fontSize: '14px', lineHeight: 1.8}}>1. Send APT to the target author on Aptos (Smart Contract).<br/>2. Fetch from Shelby RPC. The network will verify your on-chain payment and return the decrypted data instantly.</p>
              </div>
           </div>
         )}
       </main>
-
-      {toast && (
-        <div className="toast">
-          <CheckCircle2 size={18} />
-          {toast}
-        </div>
-      )}
+      {toast && <div className="toast"><CheckCircle2 size={18} /> {toast}</div>}
     </div>
   );
 }
