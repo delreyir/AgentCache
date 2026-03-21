@@ -364,18 +364,19 @@ export default function App() {
   const [owned, setOwned] = useState(new Set());
   const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
 
-  // 🔥 DIRECT WINDOW.APTOS LOGIC (No Adapter Bugs) 🔥
+  // 🔥 DIRECT WINDOW.PETRA LOGIC (Bypasses other wallets injecting window.aptos) 🔥
   const [account, setAccount] = useState<any>(null);
   const [connected, setConnected] = useState(false);
 
   // Auto-reconnect if already approved
   useEffect(() => {
     const checkConnection = async () => {
-      if ("aptos" in window) {
+      // Nsta3mlo 'petra' direct bach ma-ydkhl 7ta wallet khor f tri9na bhal Nightly aw Martian
+      if ("petra" in window) {
         try {
-          const petra = (window as any).aptos;
+          const petra = (window as any).petra;
           const acct = await petra.account();
-          if (acct) {
+          if (acct && acct.address) {
             setAccount(acct);
             setConnected(true);
           }
@@ -393,16 +394,15 @@ export default function App() {
   };
 
   const handleConnect = async () => {
-    if ("aptos" in window) {
+    if ("petra" in window) {
       try {
-        const petra = (window as any).aptos;
+        const petra = (window as any).petra;
         const response = await petra.connect();
         setAccount(response);
         setConnected(true);
         showToast("Petra Wallet connected successfully!", "success");
       } catch (error) {
         console.error("Connect Error:", error);
-        // ⚠️ Had message kaytla3 ila l-user sed l-popup wla l-wallet fiha code mzl maktbouch
         showToast("Connection rejected. Please open Petra extension manually and unlock it!", "error");
       }
     } else {
@@ -412,9 +412,9 @@ export default function App() {
   };
 
   const handleDisconnect = async () => {
-    if ("aptos" in window) {
+    if ("petra" in window) {
       try {
-        await (window as any).aptos.disconnect();
+        await (window as any).petra.disconnect();
         setAccount(null);
         setConnected(false);
         showToast("Wallet disconnected successfully.", "success");
@@ -441,7 +441,6 @@ export default function App() {
       
       const priceInOctas = Math.floor(parseFloat(strategy.price) * 100000000);
       
-      // Payload specific to direct window.aptos usage
       const payload = {
           type: "entry_function_payload",
           function: `${CONTRACT_ADDRESS}::marketplace::buy_access`,
@@ -453,7 +452,7 @@ export default function App() {
           ]
       };
 
-      const petra = (window as any).aptos;
+      const petra = (window as any).petra;
       const tx = await petra.signAndSubmitTransaction(payload);
       await aptos.waitForTransaction({ transactionHash: tx.hash });
       
